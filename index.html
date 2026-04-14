@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OnePriceCoffee — Дашборд</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f0ea; --sidebar-bg: #ede7df; --card-bg: #faf7f3;
+  --border: #ddd5c8; --text: #2c1f14; --muted: #8a7060;
+  --primary: #7a3e1a; --primary-fg: #faf7f3;
+  --accent: #c07830; --green: #2d7a3a; --red: #c0392b; --blue: #1a5c8a; --amber: #c08020;
+  --sidebar-w: 220px; --radius: 8px;
+}
+.dark {
+  --bg: #1a1209; --sidebar-bg: #1f1710; --card-bg: #251c12;
+  --border: #3a2e22; --text: #f0e8de; --muted: #9a8878;
+  --primary: #c08040; --primary-fg: #1a1209;
+}
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; font-size: 14px; }
+
+/* Sidebar */
+#sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform .25s; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); }
+.brand-name { font-weight: 700; font-size: 13px; line-height: 1.3; }
+.brand-sub { font-size: 11px; color: var(--muted); }
+nav { padding: 12px 8px; flex: 1; }
+nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); text-decoration: none; color: var(--text); font-size: 13px; font-weight: 500; transition: background .15s; cursor: pointer; margin-bottom: 2px; }
+nav a:hover, nav a.active { background: #c8b49a44; color: var(--primary); }
+nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 4px 10px 6px; margin-top: 4px; }
+
+/* Main */
+#main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 50; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.btn-icon { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; }
+.btn-icon:hover { background: var(--border); }
+#menu-btn { display: none; }
+main { padding: 24px; flex: 1; }
+
+/* Pages */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.card-title { font-size: 12px; color: var(--muted); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+.card-value { font-size: 22px; font-weight: 700; }
+.card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.card-value.pos { color: var(--green); }
+.card-value.neg { color: var(--red); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.grid4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.loc-section { margin-bottom: 18px; }
+.loc-header { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.loc-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.loc-dot-len { background: hsl(25,65%,38%); }
+.loc-dot-ser { background: hsl(35,74%,49%); }
+.grid3-loc { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+
+/* Page header */
+.page-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+h1.page-title { font-size: 18px; font-weight: 700; }
+h2.section-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity .15s; }
+.btn-primary { background: var(--primary); color: var(--primary-fg); }
+.btn-primary:hover { opacity: .85; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* Badge */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-amber { background: #fef3c7; color: #92400e; }
+.badge-green { background: #dcfce7; color: #166534; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-gray { background: #f3f4f6; color: #374151; }
+.dark .badge-blue { background: #1e3a5f; color: #93c5fd; }
+.dark .badge-amber { background: #44300a; color: #fcd34d; }
+.dark .badge-green { background: #14401d; color: #86efac; }
+.dark .badge-red { background: #4a1212; color: #fca5a5; }
+.dark .badge-gray { background: #2a2a2a; color: #d1d5db; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 600; font-size: 12px; }
+td { padding: 10px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--sidebar-bg); }
+.text-right { text-align: right; }
+
+/* Task/Event cards */
+.item-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: border-color .15s; margin-bottom: 10px; }
+.item-card:hover { border-color: var(--accent); }
+.item-card-head { display: flex; align-items: center; gap-8px gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.item-card-title { font-weight: 600; font-size: 14px; }
+.item-meta { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 16px; flex-wrap: wrap; }
+
+/* Event cards grid */
+.event-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; transition: border-color .15s; }
+.event-card:hover { border-color: var(--accent); }
+.event-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.event-card-name { font-weight: 600; font-size: 14px; }
+.event-field { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.event-field:last-of-type { border-bottom: none; }
+.event-field-label { color: var(--muted); }
+
+/* Modal */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+.overlay.open { display: flex; }
+.modal { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+.modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-size: 13px; font-family: inherit; }
+.form-group textarea { resize: vertical; min-height: 70px; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+.btn-cancel { background: var(--border); color: var(--text); }
+.btn-cancel:hover { opacity: .8; }
+
+/* Filters */
+.filters { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.filters select, .filters input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-size: 13px; }
+
+/* Chart container */
+.chart-wrap { position: relative; height: 280px; }
+
+/* Empty state */
+.empty { text-align: center; padding: 48px 16px; color: var(--muted); }
+.empty svg { width: 40px; height: 40px; margin: 0 auto 12px; opacity: .5; display: block; }
+
+/* Positive / negative */
+.pos { color: var(--green); } .neg { color: var(--red); }
+
+/* Responsive */
+@media (max-width: 700px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main { margin-left: 0; }
+  #menu-btn { display: flex; }
+  .grid2 { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <a class="brand" onclick="navigate('dashboard')">
+    <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="10" width="20" height="16" rx="3" stroke="currentColor" stroke-width="2.2" fill="none"/>
+      <path d="M26 14 C30 14,32 17,32 20 C32 23,30 26,26 26" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M12 7 C12 4,14 4,14 7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M17 5 C17 2,19 2,19 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <line x1="4" y1="28" x2="28" y2="28" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <div><div class="brand-name">OnePriceCoffee</div><div class="brand-sub">Иваново</div></div>
+  </a>
+  <nav>
+    <div class="nav-label">Навигация</div>
+    <a onclick="navigate('dashboard')" id="nav-dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Главная
+    </a>
+    <a onclick="navigate('smm')" id="nav-smm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      SMM
+    </a>
+    <a onclick="navigate('events')" id="nav-events">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Мероприятия
+    </a>
+    <a onclick="navigate('revenue')" id="nav-revenue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      Трафик и Выручка
+    </a>
+    <a onclick="navigate('tasks')" id="nav-tasks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>
+      Задачи
+    </a>
+  </nav>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <header>
+    <div class="header-left">
+      <button class="btn-icon" id="menu-btn" onclick="toggleSidebar()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+    <button class="btn-icon" onclick="toggleDark()" title="Тема">
+      <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <h1 class="page-title" style="margin-bottom:20px">Главная</h1>
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="grid2">
+        <div class="card">
+          <h2 class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>
+            Ближайшие задачи
+          </h2>
+          <div id="dash-tasks"></div>
+        </div>
+        <div class="card">
+          <h2 class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Ближайшие мероприятия
+          </h2>
+          <div id="dash-events"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMM -->
+    <div class="page" id="page-smm">
+      <div class="page-head">
+        <h1 class="page-title">SMM</h1>
+        <button class="btn btn-primary" onclick="openModal('post')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Добавить пост
+        </button>
+      </div>
+      <div class="grid4" id="smm-stats"></div>
+      <div class="card">
+        <h2 class="section-title">Журнал публикаций</h2>
+        <div class="table-wrap"><table id="smm-table">
+          <thead><tr><th>Дата</th><th>Платформа</th><th>Тип</th><th>Тема</th><th class="text-right">Охват</th><th class="text-right">Лайки</th><th class="text-right">Комм.</th><th class="text-right">Репосты</th></tr></thead>
+          <tbody id="smm-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="page" id="page-events">
+      <div class="page-head">
+        <h1 class="page-title">Мероприятия</h1>
+        <button class="btn btn-primary" onclick="openModal('event')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Добавить
+        </button>
+      </div>
+      <div class="grid3" id="events-grid"></div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="page" id="page-revenue">
+      <div class="page-head">
+        <h1 class="page-title">Трафик и Выручка</h1>
+        <button class="btn btn-primary" onclick="openModal('revenue')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Добавить запись
+        </button>
+      </div>
+      <div class="grid4" id="rev-stats"></div>
+      <div id="rev-per-loc"></div>
+      <div class="card" style="margin-bottom:16px">
+        <h2 class="section-title">Динамика выручки</h2>
+        <div class="chart-wrap"><canvas id="revenue-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <h2 class="section-title">Записи</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Дата</th><th>Локация</th><th class="text-right">Гостей</th><th class="text-right">Выручка</th><th class="text-right">Ср. чек</th></tr></thead>
+          <tbody id="rev-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="page" id="page-tasks">
+      <div class="page-head">
+        <h1 class="page-title">Задачи</h1>
+        <button class="btn btn-primary" onclick="openModal('task')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Новая задача
+        </button>
+      </div>
+      <div class="filters">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        <select id="filter-status" onchange="renderTasks()">
+          <option value="all">Все статусы</option>
+          <option value="новая">новая</option>
+          <option value="в работе">в работе</option>
+          <option value="выполнена">выполнена</option>
+          <option value="просрочена">просрочена</option>
+        </select>
+        <input type="text" id="filter-assignee" placeholder="Фильтр по исполнителю" oninput="renderTasks()" style="width:180px"/>
+      </div>
+      <div id="tasks-list"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<!-- Post modal -->
+<div class="overlay" id="modal-post">
+  <div class="modal">
+    <h3 id="post-modal-title">Новый пост</h3>
+    <form onsubmit="savePost(event)">
+      <div class="form-row">
+        <div class="form-group"><label>Дата</label><input type="date" id="p-date" required /></div>
+        <div class="form-group"><label>Платформа</label>
+          <select id="p-platform"><option value="vk">ВКонтакте</option><option value="telegram">Telegram</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Тип поста</label>
+          <select id="p-type"><option value="photo">Фото</option><option value="video">Видео</option><option value="story">Сторис</option><option value="repost">Репост</option></select>
+        </div>
+        <div class="form-group"><label>Тема</label><input type="text" id="p-topic" placeholder="О чём пост" required /></div>
+      </div>
+      <div class="form-row" style="grid-template-columns:1fr 1fr 1fr 1fr">
+        <div class="form-group"><label>Охват</label><input type="number" id="p-reach" value="0" /></div>
+        <div class="form-group"><label>Лайки</label><input type="number" id="p-likes" value="0" /></div>
+        <div class="form-group"><label>Комменты</label><input type="number" id="p-comments" value="0" /></div>
+        <div class="form-group"><label>Репосты</label><input type="number" id="p-reposts" value="0" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Подписчики ВК</label><input type="number" id="p-subvk" value="500" /></div>
+        <div class="form-group"><label>Подписчики TG</label><input type="number" id="p-subtg" value="60" /></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeModal('post')">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Event modal -->
+<div class="overlay" id="modal-event">
+  <div class="modal">
+    <h3 id="event-modal-title">Новое мероприятие</h3>
+    <form onsubmit="saveEvent(event)">
+      <input type="hidden" id="e-id" value="" />
+      <div class="form-group"><label>Название</label><input type="text" id="e-name" placeholder="Игра в мафию" required /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Дата</label><input type="date" id="e-date" required /></div>
+        <div class="form-group"><label>Тип</label>
+          <select id="e-type"><option>мафия</option><option>квиз</option><option>коллаборация</option><option>мастер-класс</option><option>другое</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Статус</label>
+          <select id="e-status"><option>планируется</option><option>подготовка</option><option>проведено</option><option>отменено</option></select>
+        </div>
+        <div class="form-group"><label>Ответственный</label><input type="text" id="e-responsible" placeholder="Имя" required /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Бюджет, ₽</label><input type="number" id="e-budget" value="0" /></div>
+        <div class="form-group"><label>Посещаемость</label><input type="number" id="e-attendance" placeholder="Кол-во" /></div>
+      </div>
+      <div class="form-group"><label>Заметки</label><textarea id="e-notes" placeholder="Дополнительная информация..."></textarea></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeModal('event')">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Revenue modal -->
+<div class="overlay" id="modal-revenue">
+  <div class="modal">
+    <h3>Новая запись</h3>
+    <form onsubmit="saveRevenue(event)">
+      <div class="form-row">
+        <div class="form-group"><label>Дата</label><input type="date" id="r-date" required /></div>
+        <div class="form-group"><label>Локация</label>
+          <select id="r-location"><option>Проспект Ленина</option><option>ТЦ Серебряный Город</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Гостей</label><input type="number" id="r-customers" value="0" required /></div>
+        <div class="form-group"><label>Выручка, ₽</label><input type="number" id="r-revenue" value="0" required /></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeModal('revenue')">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Task modal -->
+<div class="overlay" id="modal-task">
+  <div class="modal">
+    <h3 id="task-modal-title">Новая задача</h3>
+    <form onsubmit="saveTask(event)">
+      <input type="hidden" id="t-id" value="" />
+      <div class="form-group"><label>Название</label><input type="text" id="t-title" placeholder="Что нужно сделать" required /></div>
+      <div class="form-group"><label>Описание</label><textarea id="t-desc" placeholder="Подробности..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Исполнитель</label><input type="text" id="t-assignee" placeholder="Имя" required /></div>
+        <div class="form-group"><label>Дедлайн</label><input type="date" id="t-due" required /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Статус</label>
+          <select id="t-status"><option>новая</option><option>в работе</option><option>выполнена</option><option>просрочена</option></select>
+        </div>
+        <div class="form-group"><label>Приоритет</label>
+          <select id="t-priority"><option>высокий</option><option>средний</option><option>низкий</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeModal('task')">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+let nextId = 200;
+const uid = () => ++nextId;
+const today = () => new Date().toISOString().slice(0,10);
+
+// Данные VK получены автоматически с vk.ru/onepricecoffee_ivanovo (14.04.2026)
+// Telegram канал закрыт, данные TG вводите вручную через кнопку «Добавить»
+let posts = [
+  // Реальные посты VK (aprel' 2026)
+  {id:1, date:"2026-04-12",platform:"vk",postType:"photo",   topic:"Мафия-вечер: опрос о следующем мероприятии",     reach:0, likes:5,  comments:0, reposts:0, subVk:561, subTg:60},
+  {id:2, date:"2026-04-11",platform:"vk",postType:"photo",   topic:"Розыгрыш: 10 боксов Kinder + Латте Молочное облако",         reach:0, likes:3,  comments:0, reposts:3, subVk:561, subTg:60},
+  {id:3, date:"2026-04-10",platform:"vk",postType:"video",   topic:"Короткий клип: просто проходил мимо — кофе уже в руках",       reach:0, likes:0,  comments:0, reposts:0, subVk:561, subTg:60},
+  {id:4, date:"2026-04-08",platform:"vk",postType:"photo",   topic:"Фотоотчёт: первая игра в Мафию (31 марта)",              reach:0, likes:6,  comments:0, reposts:1, subVk:561, subTg:60},
+  {id:5, date:"2026-04-07",platform:"vk",postType:"photo",   topic:"Фото внешнего вида кофейни",                              reach:0, likes:3,  comments:0, reposts:0, subVk:561, subTg:60},
+  {id:6, date:"2026-04-04",platform:"vk",postType:"video",   topic:"Утро счастливого человека: клип с матча-напитком",          reach:0, likes:3,  comments:0, reposts:0, subVk:561, subTg:60},
+  {id:7, date:"2026-04-02",platform:"vk",postType:"photo",   topic:"Обновление меню: эспрессо-тоник и матча-тоник",              reach:0, likes:4,  comments:0, reposts:0, subVk:561, subTg:60},
+  {id:8, date:"2026-03-26",platform:"vk",postType:"photo",   topic:"Опрос: хотите Мафию в ONE PRICE COFFEE? (опрос)",         reach:0, likes:10, comments:0, reposts:1, subVk:561, subTg:60},
+];
+
+let events = [
+  {id:1,name:"Мафия-вечер #1",date:"2026-03-15",type:"мафия",status:"проведено",responsible:"Алексей",budget:3000,attendance:18,notes:"Первая игра, отличный отклик"},
+  {id:2,name:"Мафия-вечер #2",date:"2026-04-26",type:"мафия",status:"планируется",responsible:"Алексей",budget:3000,attendance:null,notes:"Закупить настолки заранее"},
+  {id:3,name:"Кофейный квиз",date:"2026-05-03",type:"квиз",status:"планируется",responsible:"Мария",budget:5000,attendance:null,notes:"Совместно с ИвГУ"},
+  {id:4,name:"Мастер-класс по латте-арт",date:"2026-05-17",type:"мастер-класс",status:"планируется",responsible:"Дмитрий",budget:2000,attendance:null,notes:"Бариста проведёт"},
+];
+
+// Данные из Google Sheets (апрель 2026, реальные значения iiko)
+// Пр. Ленина: ср. чек 309 ₽ | ТЦ Серебряный город: ср. чек 321 ₽
+let revenue = [
+  // 01.04
+  {id:1, date:"2026-04-01",location:"Проспект Ленина",      revenue:33478, customers:108, avgCheck:309},
+  {id:2, date:"2026-04-01",location:"ТЦ Серебряный Город",  revenue:29810, customers:93,  avgCheck:321},
+  // 02.04
+  {id:3, date:"2026-04-02",location:"Проспект Ленина",      revenue:24749, customers:80,  avgCheck:309},
+  {id:4, date:"2026-04-02",location:"ТЦ Серебряный Город",  revenue:27390, customers:85,  avgCheck:322},
+  // 03.04
+  {id:5, date:"2026-04-03",location:"Проспект Ленина",      revenue:24456, customers:79,  avgCheck:309},
+  {id:6, date:"2026-04-03",location:"ТЦ Серебряный Город",  revenue:41687, customers:130, avgCheck:321},
+  // 04.04
+  {id:7, date:"2026-04-04",location:"Проспект Ленина",      revenue:26988, customers:87,  avgCheck:310},
+  {id:8, date:"2026-04-04",location:"ТЦ Серебряный Город",  revenue:64443, customers:201, avgCheck:321},
+  // 05.04
+  {id:9, date:"2026-04-05",location:"Проспект Ленина",      revenue:12179, customers:39,  avgCheck:312},
+  {id:10,date:"2026-04-05",location:"ТЦ Серебряный Город",  revenue:64664, customers:201, avgCheck:322},
+  // 06.04
+  {id:11,date:"2026-04-06",location:"Проспект Ленина",      revenue:27608, customers:89,  avgCheck:310},
+  {id:12,date:"2026-04-06",location:"ТЦ Серебряный Город",  revenue:28494, customers:89,  avgCheck:320},
+  // 07.04
+  {id:13,date:"2026-04-07",location:"Проспект Ленина",      revenue:16963, customers:55,  avgCheck:308},
+  {id:14,date:"2026-04-07",location:"ТЦ Серебряный Город",  revenue:24248, customers:76,  avgCheck:319},
+  // 08.04
+  {id:15,date:"2026-04-08",location:"Проспект Ленина",      revenue:20602, customers:67,  avgCheck:307},
+  {id:16,date:"2026-04-08",location:"ТЦ Серебряный Город",  revenue:30635, customers:95,  avgCheck:323},
+  // 09.04
+  {id:17,date:"2026-04-09",location:"Проспект Ленина",      revenue:21115, customers:68,  avgCheck:311},
+  {id:18,date:"2026-04-09",location:"ТЦ Серебряный Город",  revenue:29759, customers:93,  avgCheck:320},
+  // 10.04
+  {id:19,date:"2026-04-10",location:"Проспект Ленина",      revenue:30071, customers:97,  avgCheck:310},
+  {id:20,date:"2026-04-10",location:"ТЦ Серебряный Город",  revenue:36761, customers:115, avgCheck:320},
+  // 11.04
+  {id:21,date:"2026-04-11",location:"Проспект Ленина",      revenue:21825, customers:71,  avgCheck:307},
+  {id:22,date:"2026-04-11",location:"ТЦ Серебряный Город",  revenue:60779, customers:189, avgCheck:322},
+  // 12.04
+  {id:23,date:"2026-04-12",location:"Проспект Ленина",      revenue:14545, customers:47,  avgCheck:309},
+  {id:24,date:"2026-04-12",location:"ТЦ Серебряный Город",  revenue:41970, customers:131, avgCheck:320},
+  // 13.04
+  {id:25,date:"2026-04-13",location:"Проспект Ленина",      revenue:24996, customers:81,  avgCheck:309},
+  {id:26,date:"2026-04-13",location:"ТЦ Серебряный Город",  revenue:23170, customers:72,  avgCheck:322},
+];
+
+let tasks = [
+  {id:1,title:"Обновить меню в ВК",desc:"Добавить зимние напитки в закреплённый пост",assignee:"Мария",due:"2026-04-20",status:"в работе",priority:"высокий"},
+  {id:2,title:"Подготовить квиз",desc:"Составить 30 вопросов — тема: кофе и Иваново",assignee:"Мария",due:"2026-04-25",status:"новая",priority:"высокий"},
+  {id:3,title:"Договориться с ИвГУ",desc:"Сотрудничество: листовки в корпусах",assignee:"Дмитрий",due:"2026-04-18",status:"выполнена",priority:"высокий"},
+  {id:4,title:"Провести фотосессию",desc:"Для нового меню и постов в соцсетях",assignee:"Алексей",due:"2026-04-22",status:"новая",priority:"средний"},
+  {id:5,title:"Закупить настолки",desc:"Мафия, Alias, Uno — минимум по 2 набора",assignee:"Дмитрий",due:"2026-04-19",status:"новая",priority:"средний"},
+  {id:6,title:"Отчёт за апрель",desc:"Собрать данные по выручке и SMM",assignee:"Алексей",due:"2026-05-05",status:"новая",priority:"низкий"},
+];
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+const fmt = n => n.toLocaleString('ru-RU');
+const fmtDate = s => new Date(s).toLocaleDateString('ru-RU');
+const platformLabel = {vk:'ВКонтакте', telegram:'Telegram'};
+const typeLabel = {photo:'Фото', video:'Видео', story:'Сторис', repost:'Репост'};
+
+const statusBadge = {
+  'новая':'badge-blue','в работе':'badge-amber','выполнена':'badge-green','просрочена':'badge-red',
+  'планируется':'badge-blue','подготовка':'badge-amber','проведено':'badge-green','отменено':'badge-red',
+};
+const priorityBadge = {'высокий':'badge-red','средний':'badge-amber','низкий':'badge-green'};
+const priorityDot = {'высокий':'🔴','средний':'🟡','низкий':'🟢'};
+const priorityOrder = {'высокий':0,'средний':1,'низкий':2};
+
+const badge = (text, cls) => `<span class="badge ${cls||statusBadge[text]||'badge-gray'}">${text}</span>`;
+
+// Weekly helpers
+function weekRange() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const wa = new Date(now.getTime()-7*86400000);
+  const pwa = new Date(wa.getTime()-7*86400000);
+  return { now, wa, pwa };
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────────
+let currentPage = 'dashboard';
+let revenueChart = null;
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  currentPage = page;
+  // Close sidebar on mobile
+  if(window.innerWidth<=700) document.getElementById('sidebar').classList.remove('open');
+  renderPage(page);
+}
+
+function renderPage(page) {
+  if(page==='dashboard') renderDashboard();
+  if(page==='smm') renderSmm();
+  if(page==='events') renderEvents();
+  if(page==='revenue') renderRevenue();
+  if(page==='tasks') renderTasks();
+}
+
+// ── DARK MODE ──────────────────────────────────────────────────────────────────
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  document.getElementById('theme-icon').innerHTML = isDark
+    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  if(currentPage==='revenue' && revenueChart) { revenueChart.destroy(); revenueChart=null; renderRevenue(); }
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const { wa } = weekRange();
+  const latest = [...posts].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const subVk = latest?.subVk ?? 500;
+  const subTg = latest?.subTg ?? 60;
+
+  const wRev = revenue.filter(r=>new Date(r.date)>=wa);
+  const totalRev = wRev.reduce((s,r)=>s+r.revenue,0);
+  const totalCust = wRev.reduce((s,r)=>s+r.customers,0);
+  const avgCheck = totalCust>0 ? Math.round(totalRev/totalCust) : 0;
+
+  // Новых подписчиков ВК за неделю
+  const wPosts  = [...posts].filter(p=>new Date(p.date)>=wa);
+  const oPosts  = [...posts].filter(p=>{ const d=new Date(p.date); return d>=new Date(wa.getTime()-7*864e5)&&d<wa; });
+  const lVk = wPosts.length ? Math.max(...wPosts.map(p=>p.subVk)) : (latest?.subVk??561);
+  const oVk = oPosts.length ? Math.min(...oPosts.map(p=>p.subVk)) : lVk;
+  const newVk = lVk - oVk;
+
+  document.getElementById('kpi-grid').innerHTML = [
+    {title:'Подписчики ВК', val:subVk, sub:newVk>0?`+${newVk} за неделю`:'vk.com'},
+    {title:'Подписчики TG', val:subTg, sub:'Telegram'},
+    {title:'Выручка за неделю', val:fmt(totalRev)+' ₽'},
+    {title:'Средний чек', val:avgCheck+' ₽'},
+    {title:'Посещаемость', val:totalCust, sub:'за неделю'},
+  ].map(k=>`<div class="card">
+    <div class="card-title">${k.title}</div>
+    <div class="card-value">${k.val}</div>
+    ${k.sub?`<div class="card-sub">${k.sub}</div>`:''}
+  </div>`).join('');
+
+  const pendingTasks = [...tasks].filter(t=>t.status!=='выполнена')
+    .sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5);
+  document.getElementById('dash-tasks').innerHTML = pendingTasks.length===0
+    ? '<p style="color:var(--muted);font-size:13px">Нет активных задач</p>'
+    : pendingTasks.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px">${priorityDot[t.priority]||'⚪'} ${t.title}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          ${badge(t.status)} <span style="font-size:12px;color:var(--muted)">${fmtDate(t.due)}</span>
+        </div>
+      </div>`).join('');
+
+  const upcoming = [...events].filter(e=>e.status!=='проведено'&&e.status!=='отменено')
+    .sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+  document.getElementById('dash-events').innerHTML = upcoming.length===0
+    ? '<p style="color:var(--muted);font-size:13px">Нет запланированных мероприятий</p>'
+    : upcoming.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px;font-weight:600">${e.name}</div><div style="font-size:12px;color:var(--muted)">${e.type}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          ${badge(e.status)} <span style="font-size:12px;color:var(--muted)">${fmtDate(e.date)}</span>
+        </div>
+      </div>`).join('');
+}
+
+// ── SMM ────────────────────────────────────────────────────────────────────────
+function renderSmm() {
+  const { wa } = weekRange();
+  const week = posts.filter(p=>new Date(p.date)>=wa);
+  const reach = week.reduce((s,p)=>s+p.reach,0);
+  const latest = [...posts].sort((a,b)=>b.date.localeCompare(a.date))[0];
+
+  // Новых подписчиков за неделю: разница между самым свежим и наиболее старым записями за 7 дней
+  const weekPosts = [...posts].filter(p=>new Date(p.date)>=wa);
+  const oldPosts  = [...posts].filter(p=>{ const d=new Date(p.date); return d>=new Date(wa.getTime()-7*864e5) && d<wa; });
+  const latestVk  = weekPosts.length  ? Math.max(...weekPosts.map(p=>p.subVk))  : (latest?.subVk??561);
+  const oldestVk  = oldPosts.length   ? Math.min(...oldPosts.map(p=>p.subVk))   : latestVk;
+  const newSubsVk = latestVk - oldestVk;
+  const latestTg  = weekPosts.length  ? Math.max(...weekPosts.map(p=>p.subTg))  : (latest?.subTg??60);
+  const oldestTg  = oldPosts.length   ? Math.min(...oldPosts.map(p=>p.subTg))   : latestTg;
+  const newSubsTg = latestTg - oldestTg;
+
+  document.getElementById('smm-stats').innerHTML = [
+    {title:'Постов за неделю', val:week.length, sub:`ВК: ${week.filter(p=>p.platform==='vk').length} / TG: ${week.filter(p=>p.platform==='telegram').length}`},
+    {title:'Общий охват', val:fmt(reach)},
+    {title:'Подписчики ВК', val:latest?.subVk??561, sub:newSubsVk>0?`+${newSubsVk} за неделю`:newSubsVk<0?`${newSubsVk} за неделю`:''},
+    {title:'Подписчики TG', val:latest?.subTg??60, sub:newSubsTg>0?`+${newSubsTg} за неделю`:newSubsTg<0?`${newSubsTg} за неделю`:''},
+    {title:'Новых подп. ВК за нед.', val:newSubsVk>=0?`+${newSubsVk}`:newSubsVk, cls:newSubsVk>=0?'pos':'neg'},
+    {title:'Новых подп. TG за нед.', val:newSubsTg>=0?`+${newSubsTg}`:newSubsTg, cls:newSubsTg>=0?'pos':'neg'},
+  ].map(k=>`<div class="card">
+    <div class="card-title">${k.title}</div>
+    <div class="card-value ${k.cls||''}">${k.val}</div>
+    ${k.sub?`<div class="card-sub">${k.sub}</div>`:''}
+  </div>`).join('');
+
+  document.getElementById('smm-tbody').innerHTML = [...posts]
+    .sort((a,b)=>b.date.localeCompare(a.date))
+    .map(p=>`<tr>
+      <td>${fmtDate(p.date)}</td>
+      <td>${badge(platformLabel[p.platform]||p.platform,'badge-gray')}</td>
+      <td>${typeLabel[p.postType]||p.postType}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.topic}</td>
+      <td class="text-right">${fmt(p.reach)}</td>
+      <td class="text-right">${p.likes}</td>
+      <td class="text-right">${p.comments}</td>
+      <td class="text-right">${p.reposts}</td>
+    </tr>`).join('');
+}
+
+// ── EVENTS ─────────────────────────────────────────────────────────────────────
+function renderEvents() {
+  const sorted = [...events].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('events-grid').innerHTML = sorted.length===0
+    ? '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><p>Мероприятий нет. Добавьте первое!</p></div>'
+    : sorted.map(e=>`<div class="event-card" onclick="openModal('event',${e.id})">
+        <div class="event-card-head">
+          <div class="event-card-name">${e.name}</div>
+          ${badge(e.status)}
+        </div>
+        <div class="event-field"><span class="event-field-label">Дата</span><span>${fmtDate(e.date)}</span></div>
+        <div class="event-field"><span class="event-field-label">Тип</span><span>${e.type}</span></div>
+        <div class="event-field"><span class="event-field-label">Ответственный</span><span>${e.responsible}</span></div>
+        <div class="event-field"><span class="event-field-label">Бюджет</span><span>${fmt(e.budget)} ₽</span></div>
+        ${e.attendance!=null?`<div class="event-field"><span class="event-field-label">Посещаемость</span><span>${e.attendance} чел.</span></div>`:''}
+        ${e.notes?`<div style="font-size:12px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">${e.notes}</div>`:''}
+      </div>`).join('');
+}
+
+// ── REVENUE ────────────────────────────────────────────────────────────────────
+function renderRevenue() {
+  const { wa, pwa } = weekRange();
+  const thisW = revenue.filter(r=>new Date(r.date)>=wa);
+  const prevW = revenue.filter(r=>{const d=new Date(r.date);return d>=pwa&&d<wa;});
+  const tw = thisW.reduce((s,r)=>s+r.revenue,0);
+  const pw = prevW.reduce((s,r)=>s+r.revenue,0);
+  const tc = thisW.reduce((s,r)=>s+r.customers,0);
+  const avgCh = tc>0?Math.round(tw/tc):0;
+  const chg = pw>0?Math.round((tw-pw)/pw*100):0;
+
+  document.getElementById('rev-stats').innerHTML = [
+    {title:'Выручка за неделю (итого)', val:fmt(tw)+' ₽', sub:pw>0?`${chg>=0?'+':''}${chg}% к прошлой неделе`:'', cls:chg>=0?'pos':'neg'},
+    {title:'Гостей за неделю (итого)', val:tc},
+    {title:'Средний чек (общий)', val:avgCh+' ₽'},
+    {title:'Прошлая неделя (итого)', val:fmt(pw)+' ₽'},
+  ].map(k=>`<div class="card">
+    <div class="card-title">${k.title}</div>
+    <div class="card-value">${k.val}</div>
+    ${k.sub?`<div class="card-sub ${k.cls||''}">${k.sub}</div>`:''}
+  </div>`).join('');
+
+  // Per-location KPIs
+  const locations = [
+    {name:'Проспект Ленина', short:'Пр. Ленина', dotCls:'loc-dot-len'},
+    {name:'ТЦ Серебряный Город', short:'ТЦ Сер. Город', dotCls:'loc-dot-ser'},
+  ];
+  let perLocHTML = '';
+  locations.forEach(loc => {
+    const locThisW = thisW.filter(r=>r.location===loc.name);
+    const locPrevW = prevW.filter(r=>r.location===loc.name);
+    const lTw = locThisW.reduce((s,r)=>s+r.revenue,0);
+    const lPw = locPrevW.reduce((s,r)=>s+r.revenue,0);
+    const lTc = locThisW.reduce((s,r)=>s+r.customers,0);
+    const lPc = locPrevW.reduce((s,r)=>s+r.customers,0);
+    const lAvg = lTc>0?Math.round(lTw/lTc):0;
+    const lChg = lPw>0?Math.round((lTw-lPw)/lPw*100):0;
+    const lCustChg = lPc>0?Math.round((lTc-lPc)/lPc*100):0;
+    const avgPerDay = locThisW.length>0?Math.round(lTc/locThisW.length):0;
+    perLocHTML += `<div class="loc-section">
+      <div class="loc-header"><span class="loc-dot ${loc.dotCls}"></span>${loc.short}</div>
+      <div class="grid3-loc">
+        <div class="card"><div class="card-title">Выручка</div><div class="card-value">${fmt(lTw)} ₽</div>
+          ${lPw>0?`<div class="card-sub ${lChg>=0?'pos':'neg'}">${lChg>=0?'+':''}${lChg}% к пред. нед.</div>`:''}</div>
+        <div class="card"><div class="card-title">Гостей</div><div class="card-value">${lTc}</div>
+          ${lPc>0?`<div class="card-sub ${lCustChg>=0?'pos':'neg'}">${lCustChg>=0?'+':''}${lCustChg}% к пред. нед.</div>`:''}</div>
+        <div class="card"><div class="card-title">Ср. чек</div><div class="card-value">${lAvg} ₽</div></div>
+        <div class="card"><div class="card-title">Гостей / день</div><div class="card-value">${avgPerDay}</div></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('rev-per-loc').innerHTML = perLocHTML;
+
+  // Chart
+  const map = new Map();
+  [...revenue].sort((a,b)=>a.date.localeCompare(b.date)).forEach(r=>{
+    if(!map.has(r.date)) map.set(r.date,{len:0,ser:0});
+    const e=map.get(r.date);
+    if(r.location==='Проспект Ленина') e.len+=r.revenue;
+    else e.ser+=r.revenue;
+  });
+  const chartDates = [...map.keys()].slice(-14);
+  const labels = chartDates.map(d=>new Date(d).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}));
+  const lenData = chartDates.map(d=>map.get(d).len);
+  const serData = chartDates.map(d=>map.get(d).ser);
+
+  const isDark = document.body.classList.contains('dark');
+  const gridColor = isDark?'#3a2e22':'#ddd5c8';
+  const textColor = isDark?'#9a8878':'#8a7060';
+
+  if(revenueChart) { revenueChart.destroy(); revenueChart=null; }
+  const ctx = document.getElementById('revenue-chart').getContext('2d');
+  revenueChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Пр. Ленина',data:lenData,backgroundColor:'hsl(25,65%,38%)',borderRadius:4},
+        {label:'ТЦ Сер. Город',data:serData,backgroundColor:'hsl(35,74%,49%)',borderRadius:4},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:textColor,font:{size:12}}}},
+      scales:{
+        x:{ticks:{color:textColor,font:{size:11}},grid:{color:gridColor}},
+        y:{ticks:{color:textColor,font:{size:11},callback:v=>fmt(v)+'₽'},grid:{color:gridColor}},
+      }
+    }
+  });
+
+  document.getElementById('rev-tbody').innerHTML = [...revenue]
+    .sort((a,b)=>b.date.localeCompare(a.date))
+    .map(r=>`<tr>
+      <td>${fmtDate(r.date)}</td>
+      <td>${badge(r.location==='Проспект Ленина'?'Пр. Ленина':'ТЦ Сер. Город','badge-gray')}</td>
+      <td class="text-right">${r.customers}</td>
+      <td class="text-right">${fmt(r.revenue)} ₽</td>
+      <td class="text-right">${r.avgCheck} ₽</td>
+    </tr>`).join('');
+}
+
+// ── TASKS ──────────────────────────────────────────────────────────────────────
+function renderTasks() {
+  const fs = document.getElementById('filter-status')?.value||'all';
+  const fa = (document.getElementById('filter-assignee')?.value||'').toLowerCase();
+  let list = [...tasks];
+  if(fs!=='all') list=list.filter(t=>t.status===fs);
+  if(fa) list=list.filter(t=>t.assignee.toLowerCase().includes(fa));
+  list.sort((a,b)=>(priorityOrder[a.priority]??1)-(priorityOrder[b.priority]??1));
+
+  document.getElementById('tasks-list').innerHTML = list.length===0
+    ? `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg><p>${tasks.length?'Задач по этому фильтру нет.':'Задач нет. Создайте первую!'}</p></div>`
+    : list.map(t=>`<div class="item-card" onclick="openModal('task',${t.id})">
+        <div class="item-card-head">
+          <span class="item-card-title">${t.title}</span>
+          ${badge(t.priority,priorityBadge[t.priority]||'badge-gray')}
+          ${badge(t.status)}
+        </div>
+        ${t.desc?`<p style="font-size:13px;color:var(--muted);margin-top:4px">${t.desc}</p>`:''}
+        <div class="item-meta">
+          <span>Исполнитель: ${t.assignee}</span>
+          <span>Дедлайн: ${fmtDate(t.due)}</span>
+        </div>
+      </div>`).join('');
+}
+
+// ── MODALS ─────────────────────────────────────────────────────────────────────
+function openModal(type, id=null) {
+  const ov = document.getElementById('modal-'+type);
+  if(type==='post') {
+    document.getElementById('p-date').value=today();
+    document.getElementById('p-subvk').value=([...posts].sort((a,b)=>b.date.localeCompare(a.date))[0]?.subVk)||500;
+    document.getElementById('p-subtg').value=([...posts].sort((a,b)=>b.date.localeCompare(a.date))[0]?.subTg)||60;
+  }
+  if(type==='event') {
+    if(id) {
+      const e=events.find(x=>x.id===id);
+      document.getElementById('event-modal-title').textContent='Редактировать мероприятие';
+      document.getElementById('e-id').value=id;
+      document.getElementById('e-name').value=e.name;
+      document.getElementById('e-date').value=e.date;
+      document.getElementById('e-type').value=e.type;
+      document.getElementById('e-status').value=e.status;
+      document.getElementById('e-responsible').value=e.responsible;
+      document.getElementById('e-budget').value=e.budget;
+      document.getElementById('e-attendance').value=e.attendance??'';
+      document.getElementById('e-notes').value=e.notes??'';
+    } else {
+      document.getElementById('event-modal-title').textContent='Новое мероприятие';
+      document.getElementById('e-id').value='';
+      document.getElementById('e-name').value='';
+      document.getElementById('e-date').value=today();
+      document.getElementById('e-type').value='мафия';
+      document.getElementById('e-status').value='планируется';
+      document.getElementById('e-responsible').value='';
+      document.getElementById('e-budget').value=0;
+      document.getElementById('e-attendance').value='';
+      document.getElementById('e-notes').value='';
+    }
+  }
+  if(type==='revenue') {
+    document.getElementById('r-date').value=today();
+  }
+  if(type==='task') {
+    if(id) {
+      const t=tasks.find(x=>x.id===id);
+      document.getElementById('task-modal-title').textContent='Редактировать задачу';
+      document.getElementById('t-id').value=id;
+      document.getElementById('t-title').value=t.title;
+      document.getElementById('t-desc').value=t.desc??'';
+      document.getElementById('t-assignee').value=t.assignee;
+      document.getElementById('t-due').value=t.due;
+      document.getElementById('t-status').value=t.status;
+      document.getElementById('t-priority').value=t.priority;
+    } else {
+      document.getElementById('task-modal-title').textContent='Новая задача';
+      document.getElementById('t-id').value='';
+      document.getElementById('t-title').value='';
+      document.getElementById('t-desc').value='';
+      document.getElementById('t-assignee').value='';
+      document.getElementById('t-due').value=today();
+      document.getElementById('t-status').value='новая';
+      document.getElementById('t-priority').value='средний';
+    }
+  }
+  ov.classList.add('open');
+}
+
+function closeModal(type) { document.getElementById('modal-'+type).classList.remove('open'); }
+
+// Close on overlay click
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('open'); });
+});
+
+// ── SAVE ───────────────────────────────────────────────────────────────────────
+function savePost(e) {
+  e.preventDefault();
+  posts.unshift({
+    id:uid(), date:document.getElementById('p-date').value,
+    platform:document.getElementById('p-platform').value,
+    postType:document.getElementById('p-type').value,
+    topic:document.getElementById('p-topic').value,
+    reach:+document.getElementById('p-reach').value||0,
+    likes:+document.getElementById('p-likes').value||0,
+    comments:+document.getElementById('p-comments').value||0,
+    reposts:+document.getElementById('p-reposts').value||0,
+    subVk:+document.getElementById('p-subvk').value||500,
+    subTg:+document.getElementById('p-subtg').value||60,
+  });
+  closeModal('post'); renderSmm();
+}
+
+function saveEvent(e) {
+  e.preventDefault();
+  const id=document.getElementById('e-id').value;
+  const obj={
+    name:document.getElementById('e-name').value,
+    date:document.getElementById('e-date').value,
+    type:document.getElementById('e-type').value,
+    status:document.getElementById('e-status').value,
+    responsible:document.getElementById('e-responsible').value,
+    budget:+document.getElementById('e-budget').value||0,
+    attendance:document.getElementById('e-attendance').value?+document.getElementById('e-attendance').value:null,
+    notes:document.getElementById('e-notes').value||null,
+  };
+  if(id) {
+    const i=events.findIndex(x=>x.id===+id);
+    events[i]={...obj,id:+id};
+  } else {
+    events.unshift({...obj,id:uid()});
+  }
+  closeModal('event'); renderEvents(); renderDashboard();
+}
+
+function saveRevenue(e) {
+  e.preventDefault();
+  const c=+document.getElementById('r-customers').value||0;
+  const r=+document.getElementById('r-revenue').value||0;
+  revenue.unshift({
+    id:uid(), date:document.getElementById('r-date').value,
+    location:document.getElementById('r-location').value,
+    customers:c, revenue:r, avgCheck:c>0?Math.round(r/c):0,
+  });
+  closeModal('revenue'); renderRevenue(); renderDashboard();
+}
+
+function saveTask(e) {
+  e.preventDefault();
+  const id=document.getElementById('t-id').value;
+  const obj={
+    title:document.getElementById('t-title').value,
+    desc:document.getElementById('t-desc').value||null,
+    assignee:document.getElementById('t-assignee').value,
+    due:document.getElementById('t-due').value,
+    status:document.getElementById('t-status').value,
+    priority:document.getElementById('t-priority').value,
+  };
+  if(id) {
+    const i=tasks.findIndex(x=>x.id===+id);
+    tasks[i]={...obj,id:+id};
+  } else {
+    tasks.unshift({...obj,id:uid()});
+  }
+  closeModal('task'); renderTasks(); renderDashboard();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+navigate('dashboard');
+</script>
+</body>
+</html>
