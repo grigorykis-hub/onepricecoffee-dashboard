@@ -432,18 +432,30 @@ let nextId = 200;
 const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
-// Данные VK получены автоматически с vk.ru/onepricecoffee_ivanovo (14.04.2026)
-// Telegram канал закрыт, данные TG вводите вручную через кнопку «Добавить»
+// Данные VK и Telegram получены автоматически (14.04.2026)
+// VK: vk.ru/onepricecoffee_ivanovo — 561 подп.
+// TG: t.me/opc_ivanovo — 68 подп.
 let posts = [
-  // Реальные посты VK (aprel' 2026)
-  {id:1, date:"2026-04-12",platform:"vk",postType:"photo",   topic:"Мафия-вечер: опрос о следующем мероприятии",     reach:0, likes:5,  comments:0, reposts:0, subVk:561, subTg:60},
-  {id:2, date:"2026-04-11",platform:"vk",postType:"photo",   topic:"Розыгрыш: 10 боксов Kinder + Латте Молочное облако",         reach:0, likes:3,  comments:0, reposts:3, subVk:561, subTg:60},
-  {id:3, date:"2026-04-10",platform:"vk",postType:"video",   topic:"Короткий клип: просто проходил мимо — кофе уже в руках",       reach:0, likes:0,  comments:0, reposts:0, subVk:561, subTg:60},
-  {id:4, date:"2026-04-08",platform:"vk",postType:"photo",   topic:"Фотоотчёт: первая игра в Мафию (31 марта)",              reach:0, likes:6,  comments:0, reposts:1, subVk:561, subTg:60},
-  {id:5, date:"2026-04-07",platform:"vk",postType:"photo",   topic:"Фото внешнего вида кофейни",                              reach:0, likes:3,  comments:0, reposts:0, subVk:561, subTg:60},
-  {id:6, date:"2026-04-04",platform:"vk",postType:"video",   topic:"Утро счастливого человека: клип с матча-напитком",          reach:0, likes:3,  comments:0, reposts:0, subVk:561, subTg:60},
-  {id:7, date:"2026-04-02",platform:"vk",postType:"photo",   topic:"Обновление меню: эспрессо-тоник и матча-тоник",              reach:0, likes:4,  comments:0, reposts:0, subVk:561, subTg:60},
-  {id:8, date:"2026-03-26",platform:"vk",postType:"photo",   topic:"Опрос: хотите Мафию в ONE PRICE COFFEE? (опрос)",         reach:0, likes:10, comments:0, reposts:1, subVk:561, subTg:60},
+  // VK
+  {id:1,  date:"2026-04-12",platform:"vk",       postType:"photo", topic:"Мафия-вечер: опрос о следующем мероприятии",      reach:0,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:2,  date:"2026-04-11",platform:"vk",       postType:"photo", topic:"Розыгрыш: 10 боксов Kinder + Латте Молочное облако",          reach:0,  likes:3,  comments:0, reposts:3, subVk:561, subTg:68},
+  {id:3,  date:"2026-04-10",platform:"vk",       postType:"video", topic:"Клип: просто проходил мимо — кофе уже в руках",            reach:0,  likes:0,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:4,  date:"2026-04-08",platform:"vk",       postType:"photo", topic:"Фотоотчёт: первая игра в Мафию (31 марта)",               reach:0,  likes:6,  comments:0, reposts:1, subVk:561, subTg:68},
+  {id:5,  date:"2026-04-07",platform:"vk",       postType:"photo", topic:"Фото внешнего вида кофейни",                               reach:0,  likes:3,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:6,  date:"2026-04-04",platform:"vk",       postType:"video", topic:"Утро счастливого человека: клип с матча-напитком",           reach:0,  likes:3,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:7,  date:"2026-04-02",platform:"vk",       postType:"photo", topic:"Обновление меню: эспрессо-тоник и матча-тоник",               reach:0,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:8,  date:"2026-03-26",platform:"vk",       postType:"photo", topic:"Опрос: хотите Мафию в ONE PRICE COFFEE?",                  reach:0,  likes:10, comments:0, reposts:1, subVk:561, subTg:68},
+  // Telegram @opc_ivanovo
+  {id:9,  date:"2026-04-12",platform:"telegram",  postType:"photo", topic:"Атмосфера Мафии: опрос следующее мероприятие",         reach:30,  likes:1,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:10, date:"2026-04-11",platform:"telegram",  postType:"photo", topic:"Розыгрыш: 10 боксов Kinder Surprise",                      reach:26,  likes:1,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:11, date:"2026-04-10",platform:"telegram",  postType:"video", topic:"Просто проходил мимо — кофе уже в руках",                  reach:35,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:12, date:"2026-04-08",platform:"telegram",  postType:"photo", topic:"Фотоотчёт Мафии: новые знакомства, будущие вечера",        reach:69,  likes:0,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:13, date:"2026-04-06",platform:"telegram",  postType:"photo", topic:"Лайт и айс: четвёртая необходимость жизни",                reach:48,  likes:6,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:14, date:"2026-04-03",platform:"telegram",  postType:"photo", topic:"Новое меню: моктейли, бабл ти, Латте Молочное облако",   reach:47,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:15, date:"2026-04-02",platform:"telegram",  postType:"video", topic:"Опоздал — потому что зашёл за кофе (19 сек)",                    reach:59,  likes:2,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:16, date:"2026-03-30",platform:"telegram",  postType:"photo", topic:"Анонс Мафии: вт. 18:30, пр. Ленина 41",                  reach:133, likes:7,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
+  {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
 
 let events = [
