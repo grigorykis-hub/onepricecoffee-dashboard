@@ -475,50 +475,35 @@ let events = [
 // Данные из Google Sheets (апрель 2026, реальные значения iiko)
 // Пр. Ленина: ср. чек 309 ₽ | ТЦ Серебряный город: ср. чек 321 ₽
 let revenue = [
-  // 01.04
-  {id:1, date:"2026-04-01",location:"Проспект Ленина",      revenue:33478, customers:108, avgCheck:309},
-  {id:2, date:"2026-04-01",location:"ТЦ Серебряный Город",  revenue:29810, customers:93,  avgCheck:321},
-  // 02.04
-  {id:3, date:"2026-04-02",location:"Проспект Ленина",      revenue:24749, customers:80,  avgCheck:309},
-  {id:4, date:"2026-04-02",location:"ТЦ Серебряный Город",  revenue:27390, customers:85,  avgCheck:322},
-  // 03.04
-  {id:5, date:"2026-04-03",location:"Проспект Ленина",      revenue:24456, customers:79,  avgCheck:309},
-  {id:6, date:"2026-04-03",location:"ТЦ Серебряный Город",  revenue:41687, customers:130, avgCheck:321},
-  // 04.04
-  {id:7, date:"2026-04-04",location:"Проспект Ленина",      revenue:26988, customers:87,  avgCheck:310},
-  {id:8, date:"2026-04-04",location:"ТЦ Серебряный Город",  revenue:64443, customers:201, avgCheck:321},
-  // 05.04
-  {id:9, date:"2026-04-05",location:"Проспект Ленина",      revenue:12179, customers:39,  avgCheck:312},
-  {id:10,date:"2026-04-05",location:"ТЦ Серебряный Город",  revenue:64664, customers:201, avgCheck:322},
-  // 06.04
-  {id:11,date:"2026-04-06",location:"Проспект Ленина",      revenue:27608, customers:89,  avgCheck:310},
-  {id:12,date:"2026-04-06",location:"ТЦ Серебряный Город",  revenue:28494, customers:89,  avgCheck:320},
-  // 07.04
-  {id:13,date:"2026-04-07",location:"Проспект Ленина",      revenue:16963, customers:55,  avgCheck:308},
-  {id:14,date:"2026-04-07",location:"ТЦ Серебряный Город",  revenue:24248, customers:76,  avgCheck:319},
-  // 08.04
-  {id:15,date:"2026-04-08",location:"Проспект Ленина",      revenue:20602, customers:67,  avgCheck:307},
-  {id:16,date:"2026-04-08",location:"ТЦ Серебряный Город",  revenue:30635, customers:95,  avgCheck:323},
-  // 09.04
-  {id:17,date:"2026-04-09",location:"Проспект Ленина",      revenue:21115, customers:68,  avgCheck:311},
-  {id:18,date:"2026-04-09",location:"ТЦ Серебряный Город",  revenue:29759, customers:93,  avgCheck:320},
-  // 10.04
-  {id:19,date:"2026-04-10",location:"Проспект Ленина",      revenue:30071, customers:97,  avgCheck:310},
-  {id:20,date:"2026-04-10",location:"ТЦ Серебряный Город",  revenue:36761, customers:115, avgCheck:320},
-  // 11.04
-  {id:21,date:"2026-04-11",location:"Проспект Ленина",      revenue:21825, customers:71,  avgCheck:307},
-  {id:22,date:"2026-04-11",location:"ТЦ Серебряный Город",  revenue:60779, customers:189, avgCheck:322},
-  // 12.04
-  {id:23,date:"2026-04-12",location:"Проспект Ленина",      revenue:14545, customers:47,  avgCheck:309},
-  {id:24,date:"2026-04-12",location:"ТЦ Серебряный Город",  revenue:41970, customers:131, avgCheck:320},
-  // 13.04
-  {id:25,date:"2026-04-13",location:"Проспект Ленина",      revenue:24996, customers:81,  avgCheck:309},
-  {id:26,date:"2026-04-13",location:"ТЦ Серебряный Город",  revenue:23170, customers:72,  avgCheck:322},
-
-  {id:27,date:"2026-04-14",location:"Проспект Ленина",      revenue:29716, customers:88,  avgCheck:338},
-  {id:28,date:"2026-04-14",location:"ТЦ Серебряный Город",  revenue:21221, customers:73,  avgCheck:291},
-
-  {id:29,date:"2026-04-15",location:"Проспект Ленина",      revenue:37871, customers:118, avgCheck:321},
+  {id:1,date:"2026-04-01",location:"Проспект Ленина",      revenue:33478, customers:108, avgCheck:310},
+  {id:2,date:"2026-04-02",location:"Проспект Ленина",      revenue:24749, customers:85, avgCheck:291},
+  {id:3,date:"2026-04-03",location:"Проспект Ленина",      revenue:24456, customers:86, avgCheck:284},
+  {id:4,date:"2026-04-04",location:"Проспект Ленина",      revenue:26988, customers:80, avgCheck:337},
+  {id:5,date:"2026-04-05",location:"Проспект Ленина",      revenue:12179, customers:35, avgCheck:348},
+  {id:6,date:"2026-04-06",location:"Проспект Ленина",      revenue:27608, customers:89, avgCheck:310},
+  {id:7,date:"2026-04-07",location:"Проспект Ленина",      revenue:16963, customers:58, avgCheck:292},
+  {id:8,date:"2026-04-08",location:"Проспект Ленина",      revenue:20602, customers:72, avgCheck:286},
+  {id:9,date:"2026-04-09",location:"Проспект Ленина",      revenue:21115, customers:77, avgCheck:274},
+  {id:10,date:"2026-04-10",location:"Проспект Ленина",      revenue:30071, customers:96, avgCheck:313},
+  {id:11,date:"2026-04-11",location:"Проспект Ленина",      revenue:21825, customers:68, avgCheck:321},
+  {id:12,date:"2026-04-12",location:"Проспект Ленина",      revenue:14545, customers:41, avgCheck:355},
+  {id:13,date:"2026-04-13",location:"Проспект Ленина",      revenue:24996, customers:76, avgCheck:329},
+  {id:14,date:"2026-04-14",location:"Проспект Ленина",      revenue:29716, customers:98, avgCheck:303},
+  {id:15,date:"2026-04-15",location:"Проспект Ленина",      revenue:37871, customers:118, avgCheck:321},
+  {id:16,date:"2026-04-01",location:"ТЦ Серебряный Город",  revenue:29810, customers:93, avgCheck:320},
+  {id:17,date:"2026-04-02",location:"ТЦ Серебряный Город",  revenue:27390, customers:91, avgCheck:301},
+  {id:18,date:"2026-04-03",location:"ТЦ Серебряный Город",  revenue:41687, customers:124, avgCheck:336},
+  {id:19,date:"2026-04-04",location:"ТЦ Серебряный Город",  revenue:64443, customers:199, avgCheck:324},
+  {id:20,date:"2026-04-05",location:"ТЦ Серебряный Город",  revenue:64664, customers:198, avgCheck:327},
+  {id:21,date:"2026-04-06",location:"ТЦ Серебряный Город",  revenue:28494, customers:84, avgCheck:339},
+  {id:22,date:"2026-04-07",location:"ТЦ Серебряный Город",  revenue:24248, customers:78, avgCheck:311},
+  {id:23,date:"2026-04-08",location:"ТЦ Серебряный Город",  revenue:30635, customers:98, avgCheck:313},
+  {id:24,date:"2026-04-09",location:"ТЦ Серебряный Город",  revenue:29759, customers:96, avgCheck:310},
+  {id:25,date:"2026-04-10",location:"ТЦ Серебряный Город",  revenue:36761, customers:118, avgCheck:312},
+  {id:26,date:"2026-04-11",location:"ТЦ Серебряный Город",  revenue:60779, customers:182, avgCheck:334},
+  {id:27,date:"2026-04-12",location:"ТЦ Серебряный Город",  revenue:41970, customers:124, avgCheck:338},
+  {id:28,date:"2026-04-13",location:"ТЦ Серебряный Город",  revenue:23170, customers:85, avgCheck:273},
+  {id:29,date:"2026-04-14",location:"ТЦ Серебряный Город",  revenue:21221, customers:73, avgCheck:291},
   {id:30,date:"2026-04-15",location:"ТЦ Серебряный Город",  revenue:38281, customers:109, avgCheck:351},
 ];
 
