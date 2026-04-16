@@ -433,11 +433,13 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 561 подп.
+// VK: vk.ru/onepricecoffee_ivanovo — 568 подп. (обновлено 16.04.2026)
 // TG: t.me/opc_ivanovo — 68 подп.
 let posts = [
   // VK
-  {id:0,  date:"2026-04-14",platform:"vk",       postType:"photo", topic:"Пожелания на каждый день — карусель 7 открыток",   reach:0,  likes:0,  comments:0, reposts:0, subVk:564, subTg:68},
+  {id:-2, date:"2026-04-15",platform:"vk",       postType:"photo", topic:"Пожелания на каждый день — тепло и радость",          reach:0,  likes:1,  comments:0, reposts:0, subVk:568, subTg:68},
+  {id:-1, date:"2026-04-13",platform:"vk",       postType:"photo", topic:"Анонс мероприятий: Мафия, чокеры, арт-вечера",            reach:0,  likes:5,  comments:0, reposts:0, subVk:568, subTg:68},
+  {id:0,  date:"2026-04-14",platform:"vk",       postType:"photo", topic:"Пожелания на каждый день — карусель 7 открыток",   reach:0,  likes:0,  comments:0, reposts:0, subVk:568, subTg:68},
   {id:1,  date:"2026-04-12",platform:"vk",       postType:"photo", topic:"Мафия-вечер: опрос о следующем мероприятии",      reach:0,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:2,  date:"2026-04-11",platform:"vk",       postType:"photo", topic:"Розыгрыш: 10 боксов Kinder + Латте Молочное облако",          reach:0,  likes:3,  comments:0, reposts:3, subVk:561, subTg:68},
   {id:3,  date:"2026-04-10",platform:"vk",       postType:"video", topic:"Клип: просто проходил мимо — кофе уже в руках",            reach:0,  likes:0,  comments:0, reposts:0, subVk:561, subTg:68},
@@ -447,6 +449,10 @@ let posts = [
   {id:7,  date:"2026-04-02",platform:"vk",       postType:"photo", topic:"Обновление меню: эспрессо-тоник и матча-тоник",               reach:0,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:8,  date:"2026-03-26",platform:"vk",       postType:"photo", topic:"Опрос: хотите Мафию в ONE PRICE COFFEE?",                  reach:0,  likes:10, comments:0, reposts:1, subVk:561, subTg:68},
   // Telegram @opc_ivanovo
+  {id:-6, date:"2026-04-14",platform:"telegram",  postType:"photo", topic:"Пожелания на каждый день — подборка из 7 фото",           reach:21,  likes:1,  comments:0, reposts:0, subVk:568, subTg:68},
+  {id:-5, date:"2026-04-12",platform:"telegram",  postType:"text",  topic:"Опрос: выбор формата мероприятия (8 голосов)",              reach:31,  likes:0,  comments:0, reposts:0, subVk:568, subTg:68},
+  {id:-4, date:"2026-04-11",platform:"telegram",  postType:"text",  topic:"Анонс мероприятий: чокеры, брелки, рисование картин",        reach:34,  likes:1,  comments:0, reposts:0, subVk:568, subTg:68},
+  {id:-3, date:"2026-04-10",platform:"telegram",  postType:"photo", topic:"Розыгрыш 10 боксов Kinder, Латте Молочное облако",           reach:29,  likes:0,  comments:0, reposts:0, subVk:568, subTg:68},
   {id:9,  date:"2026-04-12",platform:"telegram",  postType:"photo", topic:"Атмосфера Мафии: опрос следующее мероприятие",         reach:30,  likes:1,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:10, date:"2026-04-11",platform:"telegram",  postType:"photo", topic:"Розыгрыш: 10 боксов Kinder Surprise",                      reach:26,  likes:1,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:11, date:"2026-04-10",platform:"telegram",  postType:"video", topic:"Просто проходил мимо — кофе уже в руках",                  reach:35,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
@@ -508,6 +514,12 @@ let revenue = [
   // 13.04
   {id:25,date:"2026-04-13",location:"Проспект Ленина",      revenue:24996, customers:81,  avgCheck:309},
   {id:26,date:"2026-04-13",location:"ТЦ Серебряный Город",  revenue:23170, customers:72,  avgCheck:322},
+
+  {id:27,date:"2026-04-14",location:"Проспект Ленина",      revenue:41864, customers:136, avgCheck:308},
+  {id:28,date:"2026-04-14",location:"ТЦ Серебряный Город",  revenue:32146, customers:97,  avgCheck:331},
+
+  {id:29,date:"2026-04-15",location:"Проспект Ленина",      revenue:25723, customers:84,  avgCheck:306},
+  {id:30,date:"2026-04-15",location:"ТЦ Серебряный Город",  revenue:27356, customers:82,  avgCheck:334},
 ];
 
 // Контент-план ОРС на апрель 2026 (КП-30-dnei-ORS-Ivanovo-Aprel.pdf)
@@ -525,7 +537,7 @@ let tasks = [
   {id:11,title:"Рилс (наклейки ОРС)",     desc:"instagram.com/reel/DU8EYKKiuA1",                           assignee:"СММ",        due:"2026-04-09", status:"выполнено", priority:"средний"},
   {id:12,title:"ИИ — фирменные стаканы",  desc:"https://pin.it/7AuQ7SmWZ — новые фирменные стаканчики",    assignee:"СММ",        due:"2026-04-11", status:"выполнено", priority:"средний"},
   {id:13,title:"Полезное — пожелания",    desc:"https://pin.it/5oH4BCHww — пожелания от команды ОРС",      assignee:"СММ",        due:"2026-04-13", status:"выполнено", priority:"средний"},
-  {id:14,title:"Рилс (рилсмейкер)",       desc:"instagram.com/reel/DVA6kjijQqw",                            assignee:"Рилсмейкер", due:"2026-04-15", status:"в работе",  priority:"высокий"},
+  {id:14,title:"Рилс (рилсмейкер)",       desc:"instagram.com/reel/DVA6kjijQqw",                            assignee:"Рилсмейкер", due:"2026-04-15", status:"выполнено",  priority:"высокий"},
   {id:15,title:"ИИ фото",                 desc:"instagram.com/espressolabtr — фотореференс",                assignee:"СММ",        due:"2026-04-17", status:"новая",    priority:"средний"},
   {id:16,title:"Полезное — фото кофейни", desc:"Фото кофейни (снято рилсмейкером)",                        assignee:"Рилсмейкер", due:"2026-04-20", status:"новая",    priority:"средний"},
   {id:17,title:"Полезное — реф",          desc:"instagram.com/reel/DVZy6QBjwTe — реферальная ссылка",      assignee:"СММ",        due:"2026-04-22", status:"новая",    priority:"средний"},
