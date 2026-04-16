@@ -1,0 +1,43 @@
+name: Обновление дашборда
+
+on:
+  schedule:
+    # Каждый день в 8:00 МСК = 5:00 UTC
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    # Кнопка "Run workflow" в интерфейсе GitHub — для ручного запуска
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # нужно для git push
+
+    steps:
+      - name: Получить репозиторий
+        uses: actions/checkout@v4
+
+      - name: Установить Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Запустить скрипт обновления
+        run: python update_dashboard.py
+
+      - name: Зафиксировать и опубликовать изменения
+        run: |
+          git config user.name  "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Только если есть изменения
+          if git diff --quiet index.html; then
+            echo "Изменений нет — пропускаем коммит"
+          else
+            SUMMARY=$(cat update_summary.txt 2>/dev/null || echo "Авто-обновление")
+            DATE=$(date '+%d.%m.%Y')
+            git add index.html
+            git commit -m "Авто-обновление ${DATE}: ${SUMMARY}"
+            git push
+            echo "✅ Изменения запушены"
+          fi
