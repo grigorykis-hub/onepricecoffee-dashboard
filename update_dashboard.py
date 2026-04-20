@@ -79,42 +79,32 @@ def parse_daily_sheet(csv_text, location_name):
     result = {}
 
     for row in rows:
-        if not row or not row[0].strip():
+        if len(row) < 20:
             continue
-        date_raw = row[0].strip()
-        # Ищем дату DD.MM или DD.MM.YYYY
-        dm = re.match(r'^(\d{2})\.(\d{2})(?:\.(\d{4}))?', date_raw)
+        # Дата в колонке [3], формат DD.MM.YYYY
+        date_raw = row[3].strip()
+        dm = re.match(r'^(\d{2})\.(\d{2})\.(\d{4})$', date_raw)
         if not dm:
             continue
-        day   = dm.group(1)
-        month = dm.group(2)
-        year  = dm.group(3) if dm.group(3) else "2026"
+        day, month, year = dm.group(1), dm.group(2), dm.group(3)
         date_iso = f"{year}-{month}-{day}"
 
-        # Собираем все положительные числа из строки
-        nums = []
-        for cell in row[1:]:
-            clean = cell.strip().replace("\xa0", "").replace("\u00a0", "").replace(" ", "").replace(",", ".")
-            try:
-                v = float(clean)
-                if v > 0:
-                    nums.append(v)
-            except ValueError:
-                pass
+        def num(s):
+            s = s.strip().replace("\xa0","").replace("\u00a0","").replace(" ","").replace(",",".")
+            try: return float(s)
+            except: return 0.0
 
-        if len(nums) < 2:
+        # Факт выручка [5], чеки факт [19], ср.чек факт [22]
+        revenue   = int(num(row[5]))
+        customers = int(num(row[19]))
+        avg_check = int(num(row[22]))
+
+        if revenue <= 0:
             continue
-
-        # Выручка — наибольшее число (> 1000 руб)
-        revenue_candidates = [v for v in nums if v > 1000]
-        if not revenue_candidates:
-            continue
-        revenue = int(max(revenue_candidates))
-
-        # Чеки — число в диапазоне [10, revenue/5]
-        cust_candidates = [v for v in nums if 10 <= v <= revenue / 5]
-        customers = int(min(cust_candidates)) if cust_candidates else max(1, round(revenue / 320))
-        avg_check = round(revenue / customers) if customers else 320
+        if customers <= 0:
+            customers = max(1, round(revenue / 320))
+        if avg_check <= 0:
+            avg_check = round(revenue / customers)
 
         result[date_iso] = {"revenue": revenue, "customers": customers, "avg_check": avg_check}
 
