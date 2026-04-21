@@ -2,7 +2,7 @@
 """
 OnePriceCoffee Dashboard Auto-Updater
 Запускается GitHub Actions каждый день в 8:00 МСК (5:00 UTC).
-Обновляет index.html: выручка из Google Sheets + посты VK + посты TG.
+Обновляет index.html: выручка из Google Sheets + посты VK (API) + посты TG.
 """
 
 import re
@@ -12,12 +12,13 @@ import time
 import datetime
 import io
 import sys
+import os
 import urllib.request
 import urllib.error
+import urllib.parse
 
 # ── Конфиг ───────────────────────────────────────────────────────────────────
 SPREADSHEET_ID = "1Gx7-FIccn0qLkH7aGKzpDSu6Ixq2xh_HTiSZR2yoiBA"
-# Ежедневные листы "Иваново Ленина" (gid=649208657) и "Иваново ТЦ Сер. город" (gid=2039636677)
 SHEETS_LENINA_URL = (
     "https://docs.google.com/spreadsheets/d/"
     + SPREADSHEET_ID
@@ -32,6 +33,9 @@ VK_GROUP   = "onepricecoffee_ivanovo"
 TG_CHANNEL = "opc_ivanovo"
 HTML_FILE  = "index.html"
 
+VK_API_VERSION = "5.199"
+VK_API_BASE    = "https://api.vk.com/method"
+
 TODAY = datetime.date.today()
 LOG = []
 
@@ -41,7 +45,6 @@ def log(msg):
 
 # ── Утилиты ──────────────────────────────────────────────────────────────────
 def fetch(url, timeout=20):
-    """HTTP GET → str. Возвращает None при ошибке."""
     try:
         req = urllib.request.Request(url, headers={
             "User-Agent": (
@@ -69,11 +72,6 @@ def write_html(content):
 
 # ── Google Sheets → ежедневные данные ────────────────────────────────────────
 def parse_daily_sheet(csv_text, location_name):
-    """
-    Парсит лист с ежедневными данными (формат: дата DD.MM.YYYY в первом столбце,
-    далее числовые данные — выручка, чеки, ср.чек).
-    Возвращает dict: {"YYYY-MM-DD": {"revenue": X, "customers": Y, "avg_check": Z}}
-    """
     reader = csv.reader(io.StringIO(csv_text))
     rows = list(reader)
     result = {}
@@ -81,7 +79,6 @@ def parse_daily_sheet(csv_text, location_name):
     for row in rows:
         if len(row) < 20:
             continue
-        # Дата в колонке [3], формат DD.MM.YYYY
         date_raw = row[3].strip()
         dm = re.match(r'^(\d{2})\.(\d{2})\.(\d{4})$', date_raw)
         if not dm:
@@ -94,7 +91,6 @@ def parse_daily_sheet(csv_text, location_name):
             try: return float(s)
             except: return 0.0
 
-        # Факт выручка [5], чеки факт [19], ср.чек факт [22]
         revenue   = int(num(row[5]))
         customers = int(num(row[19]))
         avg_check = int(num(row[22]))
@@ -113,15 +109,7 @@ def parse_daily_sheet(csv_text, location_name):
 
 
 def fetch_sheets_revenue():
-    """
-    Загружает ежедневные данные из листов Иваново.
-    Возвращает dict:
-      {
-        "lenina": {"YYYY-MM-DD": {revenue, customers, avg_check}, ...},
-        "serebr": {"YYYY-MM-DD": {revenue, customers, avg_check}, ...},
-      }
-    """
-    log("📊 Загрузка Google Sheets (ежедневные листы)...")
+    log("Загрузка Google Sheets (ежедневные листы)...")
     result = {}
 
     raw_lenina = fetch(SHEETS_LENINA_URL)
@@ -140,10 +128,6 @@ def fetch_sheets_revenue():
 
 
 def extract_existing_revenue(html):
-    """
-    Читает массив revenue из HTML.
-    Возвращает (records, max_id, sum_rev_by_loc, sum_cust_by_loc).
-    """
     m = re.search(r'let revenue\s*=\s*\[(.*?)\];', html, re.DOTALL)
     if not m:
         return [], 30, {}, {}
@@ -172,10 +156,6 @@ def extract_existing_revenue(html):
 
 
 def build_new_revenue_entries(sheets, existing_records, max_id, known_sum_rev, known_sum_cust):
-    """
-    Добавляет только те дни из Sheets, которых ещё нет в HTML.
-    Берёт точные ежедневные данные.
-    """
     new_entries = []
     next_id = max_id + 1
     yesterday = (TODAY - datetime.timedelta(days=1)).isoformat()
@@ -183,10 +163,9 @@ def build_new_revenue_entries(sheets, existing_records, max_id, known_sum_rev, k
     for loc_key, loc_name in [("lenina", "Проспект Ленина"), ("serebr", "ТЦ Серебряный Город")]:
         if loc_key not in sheets:
             continue
-        daily = sheets[loc_key]   # dict: date_iso -> {revenue, customers, avg_check}
+        daily = sheets[loc_key]
         existing_dates = set(r["date"] for r in existing_records if r["loc_key"] == loc_key)
 
-        # Добавляем дни которых нет, и не позже вчера (сегодняшние могут быть неполными)
         new_dates = sorted([d for d in daily if d not in existing_dates and d <= yesterday])
         if not new_dates:
             log(f"  {loc_name}: нет новых дней")
@@ -209,7 +188,6 @@ def build_new_revenue_entries(sheets, existing_records, max_id, known_sum_rev, k
 
 
 def update_revenue_in_html(html, new_entries):
-    """Добавляет новые записи в конец массива revenue."""
     if not new_entries:
         return html, 0
 
@@ -224,72 +202,113 @@ def update_revenue_in_html(html, new_entries):
     return html, len(new_entries)
 
 
-# ── VK ────────────────────────────────────────────────────────────────────────
-def get_last_post_date(html, platform):
-    m_all = re.findall(
-        r'\{id:[^,]+,\s*date:"(\d{4}-\d{2}-\d{2})",platform:"' + platform + '"',
-        html
-    )
-    return max(m_all) if m_all else "2026-04-01"
-
-
-def get_current_subs(html):
-    m = re.search(r'subVk:(\d+)', html)
-    sub_vk = int(m.group(1)) if m else 568
-    m = re.search(r'subTg:(\d+)', html)
-    sub_tg = int(m.group(1)) if m else 68
-    return sub_vk, sub_tg
-
-
-def get_min_post_id(html):
-    ids = re.findall(r'\{id:(-?\d+),\s*date:', html)
-    return min(int(x) for x in ids) if ids else 0
+# ── VK API ───────────────────────────────────────────────────────────────────
+def vk_api(method, params, token):
+    """Вызов VK API. Возвращает response-dict или None при ошибке."""
+    params = dict(params)
+    params["access_token"] = token
+    params["v"] = VK_API_VERSION
+    url = VK_API_BASE + "/" + method + "?" + urllib.parse.urlencode(params)
+    raw = fetch(url)
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+    except Exception as e:
+        log(f"  [ERR] VK API JSON parse: {e}")
+        return None
+    if "error" in data:
+        log(f"  [ERR] VK API {method}: {data['error'].get('error_msg', '')}")
+        return None
+    return data.get("response")
 
 
 def fetch_vk_posts(last_vk_date):
-    log("📘 Получение данных VK...")
-    url = f"https://vk.com/{VK_GROUP}"
-    html = fetch(url)
-    if not html:
-        log("  [ERR] VK недоступен")
+    log("VK: получение данных через API...")
+    token = os.environ.get("VK_TOKEN", "")
+    if not token:
+        log("  [ERR] VK_TOKEN не задан в окружении")
         return [], None
 
+    # 1. Резолвим числовой ID группы
+    resp = vk_api("utils.resolveScreenName", {"screen_name": VK_GROUP}, token)
+    if not resp or resp.get("type") not in ("group", "public"):
+        log("  [ERR] Не удалось разрешить имя группы VK")
+        return [], None
+    group_id = resp["object_id"]
+    log(f"  Группа ID: {group_id}")
+
+    # 2. Кол-во подписчиков
     sub_vk = None
-    m = re.search(r'(\d[\d\s\xa0]+)\s*(?:подписчик|участник)', html, re.IGNORECASE)
-    if m:
-        sub_vk = int(re.sub(r'\D', '', m.group(1)))
+    g_resp = vk_api("groups.getById",
+                    {"group_id": group_id, "fields": "members_count"}, token)
+    if g_resp:
+        groups_list = g_resp.get("groups") or g_resp
+        if isinstance(groups_list, list) and groups_list:
+            sub_vk = groups_list[0].get("members_count")
+        elif isinstance(groups_list, dict):
+            sub_vk = groups_list.get("members_count")
+    if sub_vk:
         log(f"  VK подписчики: {sub_vk}")
 
-    dates_found = re.findall(r'datetime="(\d{4}-\d{2}-\d{2})', html)
-    texts_found = re.findall(r'class="wall_post_text[^"]*"[^>]*>(.*?)</div>', html, re.DOTALL)
+    # 3. Посты со стены
+    wall = vk_api("wall.get",
+                  {"owner_id": "-" + str(group_id), "count": 20, "filter": "owner"},
+                  token)
+    if not wall:
+        log("  [ERR] wall.get вернул пустой ответ")
+        return [], sub_vk
+
+    items = wall.get("items", [])
+    log(f"  Постов получено из API: {len(items)}")
 
     posts = []
-    seen  = set()
-    text_pool = list(texts_found)
-
-    for date_str in dates_found:
-        if date_str <= last_vk_date or date_str in seen:
+    for item in items:
+        ts = item.get("date", 0)
+        date_str = datetime.datetime.utcfromtimestamp(ts).strftime("%Y-%m-%d")
+        if date_str <= last_vk_date:
             continue
-        seen.add(date_str)
 
-        topic = "Новый пост"
-        if text_pool:
-            raw = text_pool.pop(0)
-            clean = re.sub(r'<[^>]+>', '', raw).strip()
-            clean = re.sub(r'\s+', ' ', clean)[:75]
-            if clean:
-                topic = clean
+        # Текст поста — берём из body или из первого вложения
+        text = item.get("text", "").strip()
+        if not text:
+            for att in item.get("attachments", []):
+                atype = att.get("type", "")
+                if atype == "photo":
+                    text = att.get("photo", {}).get("text", "") or "Фото"
+                    break
+                elif atype == "video":
+                    text = att.get("video", {}).get("title", "") or "Видео"
+                    break
+        # Убираем переносы и обрезаем
+        text = " ".join(text.split())[:75] or "Публикация"
 
-        posts.append({"date": date_str, "type": "photo", "topic": topic,
-                      "likes": 0, "comments": 0, "reposts": 0})
+        likes    = item.get("likes",    {}).get("count", 0)
+        reposts  = item.get("reposts",  {}).get("count", 0)
+        comments = item.get("comments", {}).get("count", 0)
+        views    = item.get("views",    {}).get("count", 0)
+
+        att_types = [a.get("type") for a in item.get("attachments", [])]
+        if "video" in att_types:
+            post_type = "video"
+        elif "photo" in att_types:
+            post_type = "photo"
+        else:
+            post_type = "text"
+
+        posts.append({
+            "date": date_str, "type": post_type, "topic": text,
+            "likes": likes, "comments": comments, "reposts": reposts, "reach": views
+        })
 
     posts.sort(key=lambda x: x["date"], reverse=True)
-    log(f"  VK новых постов: {len(posts)}")
+    log(f"  VK новых постов (новее {last_vk_date}): {len(posts)}")
     return posts, sub_vk
 
 
+# ── Telegram ──────────────────────────────────────────────────────────────────
 def fetch_tg_posts(last_tg_date):
-    log("✈️  Получение данных Telegram...")
+    log("TG: получение данных...")
     url = f"https://t.me/s/{TG_CHANNEL}"
     html = fetch(url)
     if not html:
@@ -325,7 +344,7 @@ def fetch_tg_posts(last_tg_date):
         topic = "Новый пост"
         if i < len(all_texts):
             clean = re.sub(r'<[^>]+>', '', all_texts[i]).strip()
-            clean = re.sub(r'\s+', ' ', clean)[:75]
+            clean = " ".join(clean.split())[:75]
             if clean:
                 topic = clean
 
@@ -337,14 +356,38 @@ def fetch_tg_posts(last_tg_date):
     return posts, sub_tg
 
 
+# ── Вспомогательные функции постов ───────────────────────────────────────────
+def get_last_post_date(html, platform):
+    m_all = re.findall(
+        r'\{id:[^,]+,\s*date:"(\d{4}-\d{2}-\d{2})",platform:"' + platform + '"',
+        html
+    )
+    return max(m_all) if m_all else "2026-04-01"
+
+
+def get_current_subs(html):
+    m = re.search(r'subVk:(\d+)', html)
+    sub_vk = int(m.group(1)) if m else 568
+    m = re.search(r'subTg:(\d+)', html)
+    sub_tg = int(m.group(1)) if m else 68
+    return sub_vk, sub_tg
+
+
+def get_min_post_id(html):
+    ids = re.findall(r'\{id:(-?\d+),\s*date:', html)
+    return min(int(x) for x in ids) if ids else 0
+
+
 def build_post_js(post, pid, platform, sub_vk, sub_tg):
     topic = post["topic"].replace('"', "'")[:75]
     reach = post.get("reach", 0)
     likes = post.get("likes", 0)
+    reposts = post.get("reposts", 0)
+    comments = post.get("comments", 0)
     return (
         f'  {{id:{pid}, date:"{post["date"]}",platform:"{platform}",'
         f'       postType:"{post.get("type","photo")}", topic:"{topic}",'
-        f'   reach:{reach},  likes:{likes},  comments:0, reposts:0,'
+        f'   reach:{reach},  likes:{likes},  comments:{comments}, reposts:{reposts},'
         f' subVk:{sub_vk}, subTg:{sub_tg}}},'
     )
 
@@ -399,7 +442,7 @@ def update_task_statuses(html):
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     log(f"\n{'='*60}")
-    log(f"🚀 OnePriceCoffee Dashboard Updater — {TODAY}")
+    log(f"OnePriceCoffee Dashboard Updater — {TODAY}")
     log(f"{'='*60}\n")
 
     html = read_html()
@@ -414,21 +457,21 @@ def main():
         new_rev = build_new_revenue_entries(sheets_data, records, max_id, sum_rev, sum_cust)
         if new_rev:
             html, revenue_added = update_revenue_in_html(html, new_rev)
-            log(f"  ✅ Выручка: добавлено {revenue_added} записей")
+            log(f"  Выручка: добавлено {revenue_added} записей")
         else:
-            log("  ℹ️  Выручка: нет новых данных")
+            log("  Выручка: нет новых данных")
     log("")
 
-    # ── 2. VK ───────────────────────────────────────────────────────────────
+    # ── 2. VK (через API) ───────────────────────────────────────────────────
     last_vk = get_last_post_date(html, "vk")
-    log(f"Последний VK-пост: {last_vk}")
+    log(f"Последний VK-пост в HTML: {last_vk}")
     vk_posts, new_sub_vk = fetch_vk_posts(last_vk)
     sub_vk = new_sub_vk if new_sub_vk else cur_sub_vk
     log("")
 
     # ── 3. Telegram ─────────────────────────────────────────────────────────
     last_tg = get_last_post_date(html, "telegram")
-    log(f"Последний TG-пост: {last_tg}")
+    log(f"Последний TG-пост в HTML: {last_tg}")
     tg_posts, new_sub_tg = fetch_tg_posts(last_tg)
     sub_tg = new_sub_tg if new_sub_tg else cur_sub_tg
     log("")
@@ -440,7 +483,7 @@ def main():
 
     # ── 5. Сохранение ───────────────────────────────────────────────────────
     write_html(html)
-    log(f"\n✅ Готово: VK +{vk_added} | TG +{tg_added} | Выручка +{revenue_added}")
+    log(f"\nГотово: VK +{vk_added} | TG +{tg_added} | Выручка +{revenue_added}")
     log(f"   Подписчики: VK={sub_vk} | TG={sub_tg}")
 
     return {"vk_added": vk_added, "tg_added": tg_added,

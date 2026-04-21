@@ -11,7 +11,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # нужно для git push
+      contents: write
 
     steps:
       - name: Получить репозиторий
@@ -23,6 +23,8 @@ jobs:
           python-version: '3.11'
 
       - name: Запустить скрипт обновления
+        env:
+          VK_TOKEN: ${{ secrets.VK_TOKEN }}
         run: python update_dashboard.py
 
       - name: Зафиксировать и опубликовать изменения
@@ -30,7 +32,6 @@ jobs:
           git config user.name  "GitHub Actions"
           git config user.email "actions@github.com"
 
-          # Только если есть изменения
           if git diff --quiet index.html; then
             echo "Изменений нет — пропускаем коммит"
           else
@@ -39,5 +40,5 @@ jobs:
             git add index.html
             git commit -m "Авто-обновление ${DATE}: ${SUMMARY}"
             git push
-            echo "✅ Изменения запушены"
+            echo "Изменения запушены"
           fi
