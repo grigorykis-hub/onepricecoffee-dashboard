@@ -440,6 +440,14 @@ def update_task_statuses(html):
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+
+def update_current_subs_var(html, sub_vk, sub_tg):
+    """Обновляет переменные currentSubVk/currentSubTg — всегда, даже без новых постов."""
+    import re
+    html = re.sub(r'const currentSubVk = \d+;', f'const currentSubVk = {sub_vk};', html)
+    html = re.sub(r'const currentSubTg = \d+;', f'const currentSubTg = {sub_tg};', html)
+    return html
+
 def main():
     log(f"\n{'='*60}")
     log(f"OnePriceCoffee Dashboard Updater — {TODAY}")
@@ -479,6 +487,7 @@ def main():
     # ── 4. Вставка постов ───────────────────────────────────────────────────
     html, vk_added, tg_added = inject_posts(html, vk_posts, tg_posts, sub_vk, sub_tg)
     html = update_sub_comment(html, sub_vk, sub_tg)
+    html = update_current_subs_var(html, sub_vk, sub_tg)
     html = update_task_statuses(html)
 
     # ── 5. Сохранение ───────────────────────────────────────────────────────

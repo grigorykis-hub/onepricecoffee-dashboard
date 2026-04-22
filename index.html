@@ -470,6 +470,8 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
+const currentSubVk = 610;  // обновляется скриптом автоматически
+const currentSubTg = 69;   // обновляется скриптом автоматически
 
 let events = [
   {id:1,name:"Мафия-вечер #1",date:"2026-03-15",type:"мафия",status:"проведено",responsible:"Алексей",budget:3000,attendance:18,notes:"Первая игра, отличный отклик"},
@@ -615,8 +617,8 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function renderDashboard() {
   const { wa } = weekRange();
   const latest = [...posts].sort((a,b)=>b.date.localeCompare(a.date))[0];
-  const subVk = latest?.subVk ?? 500;
-  const subTg = latest?.subTg ?? 60;
+  const subVk = currentSubVk;
+  const subTg = currentSubTg;
 
   const wRev = revenue.filter(r=>new Date(r.date)>=wa);
   const totalRev = wRev.reduce((s,r)=>s+r.revenue,0);
@@ -685,8 +687,8 @@ function renderSmm() {
   document.getElementById('smm-stats').innerHTML = [
     {title:'Постов за неделю', val:week.length, sub:`ВК: ${week.filter(p=>p.platform==='vk').length} / TG: ${week.filter(p=>p.platform==='telegram').length}`},
     {title:'Общий охват', val:fmt(reach)},
-    {title:'Подписчики ВК', val:latest?.subVk??561, sub:newSubsVk>0?`+${newSubsVk} за неделю`:newSubsVk<0?`${newSubsVk} за неделю`:''},
-    {title:'Подписчики TG', val:latest?.subTg??60, sub:newSubsTg>0?`+${newSubsTg} за неделю`:newSubsTg<0?`${newSubsTg} за неделю`:''},
+    {title:'Подписчики ВК', val:currentSubVk, sub:newSubsVk>0?`+${newSubsVk} за неделю`:newSubsVk<0?`${newSubsVk} за неделю`:''},
+    {title:'Подписчики TG', val:currentSubTg, sub:newSubsTg>0?`+${newSubsTg} за неделю`:newSubsTg<0?`${newSubsTg} за неделю`:''},
     {title:'Новых подп. ВК за нед.', val:newSubsVk>=0?`+${newSubsVk}`:newSubsVk, cls:newSubsVk>=0?'pos':'neg'},
     {title:'Новых подп. TG за нед.', val:newSubsTg>=0?`+${newSubsTg}`:newSubsTg, cls:newSubsTg>=0?'pos':'neg'},
   ].map(k=>`<div class="card">
