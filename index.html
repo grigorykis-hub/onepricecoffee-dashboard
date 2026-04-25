@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>OnePriceCoffee — Дашборд</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -184,6 +185,10 @@ tr:hover td { background: var(--sidebar-bg); }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
       Трафик и Выручка
     </a>
+    <a onclick="navigate('target')" id="nav-target">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      Таргет VK
+    </a>
     <a onclick="navigate('tasks')" id="nav-tasks">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>
       Задачи
@@ -303,6 +308,73 @@ tr:hover td { background: var(--sidebar-bg); }
         <input type="text" id="filter-assignee" placeholder="Фильтр по исполнителю" oninput="renderTasks()" style="width:180px"/>
       </div>
       <div id="tasks-list"></div>
+    </div>
+
+    <!-- TARGET VK -->
+    <div class="page" id="page-target">
+      <div class="page-head">
+        <h1 class="page-title">Таргетированная реклама VK</h1>
+
+      </div>
+
+      <!-- Загрузка XLSX -->
+      <div id="target-upload-zone" style="margin-bottom:20px">
+        <label for="target-xlsx-input" id="target-dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:2px dashed var(--border);border-radius:12px;padding:32px 20px;cursor:pointer;background:var(--surface2);transition:border-color .2s">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div style="font-weight:600;color:var(--text)">Загрузить отчёт VK Рекламы (.xlsx)</div>
+          <div style="font-size:12px;color:var(--muted)">Скачайте отчёт из ads.vk.com → Перетащите сюда или нажмите</div>
+        </label>
+        <input type="file" id="target-xlsx-input" accept=".xlsx" style="display:none" onchange="handleTargetXlsx(this)">
+      </div>
+
+      <!-- Карточки показателей -->
+      <div id="target-kpi-grid" style="display:none">
+        <!-- Заполняется JS -->
+      </div>
+
+      <!-- Таблица объявлений -->
+      <div id="target-table-wrap" style="display:none;margin-top:24px">
+        <h2 class="section-title">История объявлений</h2>
+        <div style="overflow-x:auto">
+          <table id="target-table" style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:var(--surface2);text-align:left">
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Объявление</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Период</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Охват</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Частота</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">CTR</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">CPC</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">CPF</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Бюджет</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Новых подп.</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"></th>
+              </tr>
+            </thead>
+            <tbody id="target-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Пустая заглушка -->
+      <div id="target-empty" style="text-align:center;padding:60px 20px;color:var(--text2)">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin-bottom:12px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <div style="font-size:15px;font-weight:500;margin-bottom:6px">Данных пока нет</div>
+        <div style="font-size:13px">Загрузите отчёт из кабинета VK Рекламы (ads.vk.com) в формате .xlsx</div>
+      </div>
+
+      <!-- Чек-лист -->
+      <div style="margin-top:28px;background:var(--surface2);border-radius:10px;padding:18px;max-width:560px">
+        <h2 class="section-title" style="margin-bottom:12px">Еженедельный чек-лист</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> Сравните CTR этой недели с прошлой — растёт или падает?</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> Проверьте частоту — не превышает 3–4?</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> Посмотрите стоимость подписчика (CPF) — укладывается в 50 ₽?</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> Сравните прирост подписчиков с прошлой неделей</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> Отключите объявление с худшим CTR</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> Бюджет объявления-победителя — увеличьте на 20%</label>
+        </div>
+      </div>
     </div>
   </main>
 </div>
@@ -607,7 +679,219 @@ function renderPage(page) {
   if(page==='events') renderEvents();
   if(page==='revenue') renderRevenue();
   if(page==='tasks') renderTasks();
+  if(page==='target') renderTarget();
 }
+
+
+// ── TARGET VK ─────────────────────────────────────────────────────────────────
+// Hardcoded campaign data (Группа 2026-04-13, 13.04–22.04.2026)
+let targetAds = [
+  {
+    name: 'Группа 2026-04-13',
+    period: '13.04–22.04.2026',
+    impressions: 9004,
+    reach: null,
+    frequency: null,
+    ctr: 0.311,
+    cpc: 63.71,
+    spent: 1784,
+    result: 6,
+    cpf: 297.33,
+    clicks: 28,
+    cr: 21.43,
+    status: 'active',
+    source: 'builtin'
+  }
+];
+
+function ctrClass(v) {
+  if (v === null || v === undefined) return '';
+  if (v > 1.2) return 'style="color:#1a7a30;font-weight:600"';
+  if (v >= 0.7) return 'style="color:#1a5c8a;font-weight:600"';
+  if (v >= 0.3) return 'style="color:#c08020;font-weight:600"';
+  return 'style="color:#c0392b;font-weight:600"';
+}
+function freqClass(v) {
+  if (v === null || v === undefined) return '';
+  if (v <= 3) return 'style="color:#1a7a30;font-weight:600"';
+  if (v <= 4) return 'style="color:#c08020;font-weight:600"';
+  return 'style="color:#c0392b;font-weight:600"';
+}
+function cpfClass(v) {
+  if (v === null || v === undefined) return '';
+  if (v <= 50) return 'style="color:#1a7a30;font-weight:600"';
+  if (v <= 100) return 'style="color:#c08020;font-weight:600"';
+  return 'style="color:#c0392b;font-weight:600"';
+}
+
+function renderTargetKpis(ads) {
+  const grid = document.getElementById('target-kpi-grid');
+  if (!ads || ads.length === 0) { grid.style.display = 'none'; return; }
+  // Aggregate
+  const totalImpr = ads.reduce((s,a) => s + (a.impressions||0), 0);
+  const totalClicks = ads.reduce((s,a) => s + (a.clicks||0), 0);
+  const totalSpent = ads.reduce((s,a) => s + (a.spent||0), 0);
+  const totalResult = ads.reduce((s,a) => s + (a.result||0), 0);
+  const avgCtr = totalImpr > 0 ? (totalClicks / totalImpr * 100) : 0;
+  const avgCpf = totalResult > 0 ? (totalSpent / totalResult) : 0;
+  const avgCpc = totalClicks > 0 ? (totalSpent / totalClicks) : 0;
+
+  // CTR badge
+  let ctrLabel = '', ctrColor = '';
+  if (avgCtr > 1.2) { ctrLabel = 'Отлично'; ctrColor = '#1a7a30'; }
+  else if (avgCtr >= 0.7) { ctrLabel = 'Хорошо'; ctrColor = '#1a5c8a'; }
+  else if (avgCtr >= 0.3) { ctrLabel = 'Средне'; ctrColor = '#c08020'; }
+  else { ctrLabel = 'Срочно менять'; ctrColor = '#c0392b'; }
+
+  // CPF badge
+  let cpfLabel = '', cpfColor = '';
+  if (avgCpf === 0) { cpfLabel = 'Нет данных'; cpfColor = '#8a7060'; }
+  else if (avgCpf <= 50) { cpfLabel = 'Норма'; cpfColor = '#1a7a30'; }
+  else if (avgCpf <= 100) { cpfLabel = 'Дорого'; cpfColor = '#c08020'; }
+  else { cpfLabel = 'Очень дорого'; cpfColor = '#c0392b'; }
+
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(160px,1fr))';
+  grid.style.gap = '12px';
+  grid.style.marginBottom = '20px';
+
+  const fmt = (n, dec=0) => n === null || isNaN(n) ? '—' : n.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  grid.innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Показы</div><div class="kpi-value">${fmt(totalImpr)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Клики</div><div class="kpi-value">${fmt(totalClicks)}</div></div>
+    <div class="kpi-card">
+      <div class="kpi-label">CTR</div>
+      <div class="kpi-value" style="color:${ctrColor}">${fmt(avgCtr,2)}%</div>
+      <div style="font-size:11px;color:${ctrColor};margin-top:4px;font-weight:600">${ctrLabel}</div>
+    </div>
+    <div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">${fmt(avgCpc,0)} ₽</div></div>
+    <div class="kpi-card">
+      <div class="kpi-label">CPF (стоимость подписчика)</div>
+      <div class="kpi-value" style="color:${cpfColor}">${fmt(avgCpf,0)} ₽</div>
+      <div style="font-size:11px;color:${cpfColor};margin-top:4px;font-weight:600">${cpfLabel}</div>
+    </div>
+    <div class="kpi-card"><div class="kpi-label">Бюджет потрачено</div><div class="kpi-value">${fmt(totalSpent,0)} ₽</div></div>
+    <div class="kpi-card"><div class="kpi-label">Новых подписчиков</div><div class="kpi-value">${fmt(totalResult)}</div></div>
+  `;
+}
+
+function renderTargetTable(ads) {
+  const wrap = document.getElementById('target-table-wrap');
+  const tbody = document.getElementById('target-tbody');
+  if (!ads || ads.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  tbody.innerHTML = ads.map((a,i) => {
+    const cpf = a.cpf !== null && a.cpf !== undefined ? a.cpf : (a.result > 0 ? a.spent / a.result : null);
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 10px;font-weight:500">${a.name}</td>
+      <td style="padding:8px 10px;color:var(--muted);font-size:12px">${a.period}</td>
+      <td style="padding:8px 10px">${a.impressions ? a.impressions.toLocaleString('ru') : '—'}</td>
+      <td style="padding:8px 10px">${a.reach ? a.reach.toLocaleString('ru') : '—'}</td>
+      <td style="padding:8px 10px" ${ctrClass(a.ctr)}>${a.ctr !== null ? a.ctr.toFixed(2)+'%' : '—'}</td>
+      <td style="padding:8px 10px">${a.cpc !== null && a.cpc !== undefined ? Math.round(a.cpc)+' ₽' : '—'}</td>
+      <td style="padding:8px 10px" ${cpfClass(cpf)}>${cpf !== null ? Math.round(cpf)+' ₽' : '—'}</td>
+      <td style="padding:8px 10px">${a.spent ? Math.round(a.spent)+' ₽' : '—'}</td>
+      <td style="padding:8px 10px;font-weight:600">${a.result || 0}</td>
+      <td style="padding:8px 10px"><button class="btn" style="font-size:11px;padding:3px 8px" onclick="removeTargetAd(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function removeTargetAd(idx) {
+  targetAds.splice(idx, 1);
+  renderTarget();
+}
+
+function renderTarget() {
+  const empty = document.getElementById('target-empty');
+  if (targetAds.length === 0) {
+    empty.style.display = 'block';
+    document.getElementById('target-kpi-grid').style.display = 'none';
+    document.getElementById('target-table-wrap').style.display = 'none';
+  } else {
+    empty.style.display = 'none';
+    renderTargetKpis(targetAds);
+    renderTargetTable(targetAds);
+  }
+}
+
+function handleTargetXlsx(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type: 'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header: 1, defval: null});
+      if (rows.length < 2) { alert('Файл пустой или не содержит данных'); return; }
+      const headers = rows[0];
+      const findCol = (names) => {
+        for (const n of names) {
+          const idx = headers.findIndex(h => h && h.toString().toLowerCase().includes(n.toLowerCase()));
+          if (idx >= 0) return idx;
+        }
+        return -1;
+      };
+      const iName = findCol(['Название']);
+      const iImpr = findCol(['Показы']);
+      const iClicks = findCol(['Клики']);
+      const iCtr = findCol(['CTR']);
+      const iCpc = findCol(['eCPC', 'CPC']);
+      const iSpent = findCol(['Потрачено']);
+      const iResult = findCol(['Результат']);
+      const iCpf = findCol(['Цена за результат']);
+      const iStart = findCol(['Дата начала']);
+      const iEnd = findCol(['Дата завершения']);
+      const iReach = findCol(['Охват']);
+      const iFreq = findCol(['Частота']);
+
+      let added = 0;
+      for (let r = 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row || !row[iName]) continue;
+        const name = row[iName] ? row[iName].toString() : ('Объявление ' + r);
+        const start = iStart >= 0 && row[iStart] ? row[iStart].toString().replace('T',' ').substring(0,10) : '';
+        const end = iEnd >= 0 && row[iEnd] ? row[iEnd].toString().replace('T',' ').substring(0,10) : '';
+        const period = start && end && end !== '-' ? start + ' – ' + end : (start || '');
+        const spent = iSpent >= 0 ? parseFloat(row[iSpent]) || 0 : 0;
+        const result = iResult >= 0 ? parseFloat(row[iResult]) || 0 : 0;
+        const cpfVal = iCpf >= 0 && row[iCpf] && row[iCpf] !== '-' ? parseFloat(row[iCpf]) : (result > 0 ? spent / result : null);
+        const ctrVal = iCtr >= 0 && row[iCtr] !== null ? parseFloat(row[iCtr]) : null;
+        targetAds.push({
+          name: name,
+          period: period,
+          impressions: iImpr >= 0 ? parseInt(row[iImpr]) || 0 : 0,
+          reach: iReach >= 0 && row[iReach] ? parseInt(row[iReach]) : null,
+          frequency: iFreq >= 0 && row[iFreq] ? parseFloat(row[iFreq]) : null,
+          ctr: ctrVal,
+          cpc: iCpc >= 0 && row[iCpc] !== null ? parseFloat(row[iCpc]) : null,
+          spent: spent,
+          result: result,
+          cpf: cpfVal,
+          clicks: iClicks >= 0 ? parseInt(row[iClicks]) || 0 : 0,
+          cr: null,
+          status: 'uploaded',
+          source: 'xlsx'
+        });
+        added++;
+      }
+      input.value = '';
+      if (added === 0) { alert('Не удалось распознать строки в файле'); return; }
+      renderTarget();
+    } catch(err) {
+      alert('Ошибка чтения файла: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// Legacy stubs (no longer used but kept for safety)
+function openTargetForm() {}
+function closeTargetForm() {}
+function saveTargetAd(e) { e.preventDefault(); }
 
 // ── DARK MODE ──────────────────────────────────────────────────────────────────
 function toggleDark() {
