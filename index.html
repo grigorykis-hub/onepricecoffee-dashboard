@@ -151,6 +151,47 @@ tr:hover td { background: var(--sidebar-bg); }
   .grid2 { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+/* ── Tooltips ─────────────────────────────────────────── */
+.tt { position:relative; cursor:help; border-bottom:1px dashed var(--muted); display:inline-block; }
+.tt::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2c1f14;
+  color: #faf7f3;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  white-space: pre-line;
+  width: max-content;
+  max-width: 260px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s;
+  z-index: 999;
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+.tt::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #2c1f14;
+  opacity: 0;
+  transition: opacity .18s;
+  z-index: 999;
+  pointer-events: none;
+}
+.tt:hover::after, .tt:hover::before { opacity: 1; }
+.dark .tt::after { background: #f0e8de; color: #1a1209; }
+.dark .tt::before { border-top-color: #f0e8de; }
 </style>
 </head>
 <body>
@@ -341,13 +382,41 @@ tr:hover td { background: var(--sidebar-bg); }
               <tr style="background:var(--surface2);text-align:left">
                 <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Объявление</th>
                 <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Период</th>
-                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Охват</th>
-                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Частота</th>
-                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">CTR</th>
-                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">CPC</th>
-                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">CPF</th>
-                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Бюджет</th>
-                <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Новых подп.</th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="tt" data-tip="Уникальные пользователи,
+которые увидели рекламу.
+Чем больше — тем шире
+аудитория кампании.">Охват</span></th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="tt" data-tip="Среднее число показов
+одному человеку.
+🟢 ≤3 — норма
+🟡 3–4 — внимание
+🔴 >5 — аудитория выгорела,
+   нужно менять креатив.">Частота</span></th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="tt" data-tip="Click-Through Rate — процент
+кликов от показов.
+🟢 >1.2% — отлично
+🔵 0.7–1.2% — хорошо
+🟡 0.3–0.7% — средне
+🔴 <0.3% — срочно менять
+   объявление.">CTR</span></th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="tt" data-tip="Cost Per Click — стоимость
+одного клика на объявление.
+Средний ориентир: 30–80 ₽
+для локального бизнеса.">CPC</span></th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="tt" data-tip="Cost Per Follower — стоимость
+одного нового подписчика.
+🟢 ≤50 ₽ — норма
+🟡 50–100 ₽ — дорого
+🔴 >100 ₽ — нужно
+   оптимизировать кампанию.">CPF</span></th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="tt" data-tip="Сумма фактических расходов
+на рекламу за период
+кампании (в рублях).">Бюджет</span></th>
+                <th style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="tt" data-tip="Количество новых подписчиков
+сообщества, привлечённых
+рекламой за период.
+🟢 50–100/мес — норма
+   на старте проекта.">Новых подп.</span></th>
                 <th style="padding:8px 10px;border-bottom:1px solid var(--border)"></th>
               </tr>
             </thead>
@@ -758,21 +827,21 @@ function renderTargetKpis(ads) {
   const fmt = (n, dec=0) => n === null || isNaN(n) ? '—' : n.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
   grid.innerHTML = `
-    <div class="kpi-card"><div class="kpi-label">Показы</div><div class="kpi-value">${fmt(totalImpr)}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Клики</div><div class="kpi-value">${fmt(totalClicks)}</div></div>
+    <div class="kpi-card"><div class="kpi-label"><span class="tt" data-tip="Суммарное число показов&#10;всех объявлений кампании.">Показы</span></div><div class="kpi-value">${fmt(totalImpr)}</div></div>
+    <div class="kpi-card"><div class="kpi-label"><span class="tt" data-tip="Суммарное число кликов&#10;по объявлениям.">Клики</span></div><div class="kpi-value">${fmt(totalClicks)}</div></div>
     <div class="kpi-card">
-      <div class="kpi-label">CTR</div>
+      <div class="kpi-label"><span class="tt" data-tip="Click-Through Rate — доля&#10;кликов от показов.&#10;&#10;🟢 &gt;1.2% — отлично&#10;🔵 0.7–1.2% — хорошо&#10;🟡 0.3–0.7% — средне&#10;🔴 &lt;0.3% — срочно менять">CTR</span></div>
       <div class="kpi-value" style="color:${ctrColor}">${fmt(avgCtr,2)}%</div>
       <div style="font-size:11px;color:${ctrColor};margin-top:4px;font-weight:600">${ctrLabel}</div>
     </div>
-    <div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">${fmt(avgCpc,0)} ₽</div></div>
+    <div class="kpi-card"><div class="kpi-label"><span class="tt" data-tip="Cost Per Click — средняя&#10;стоимость одного клика.&#10;Ориентир: 30–80 ₽.">CPC</span></div><div class="kpi-value">${fmt(avgCpc,0)} ₽</div></div>
     <div class="kpi-card">
-      <div class="kpi-label">CPF (стоимость подписчика)</div>
+      <div class="kpi-label"><span class="tt" data-tip="Cost Per Follower — стоимость&#10;одного нового подписчика.&#10;&#10;🟢 ≤50 ₽ — норма&#10;🟡 50–100 ₽ — дорого&#10;🔴 &gt;100 ₽ — очень дорого">CPF</span></div>
       <div class="kpi-value" style="color:${cpfColor}">${fmt(avgCpf,0)} ₽</div>
       <div style="font-size:11px;color:${cpfColor};margin-top:4px;font-weight:600">${cpfLabel}</div>
     </div>
-    <div class="kpi-card"><div class="kpi-label">Бюджет потрачено</div><div class="kpi-value">${fmt(totalSpent,0)} ₽</div></div>
-    <div class="kpi-card"><div class="kpi-label">Новых подписчиков</div><div class="kpi-value">${fmt(totalResult)}</div></div>
+    <div class="kpi-card"><div class="kpi-label"><span class="tt" data-tip="Фактические расходы&#10;на рекламу (сумма по&#10;всем объявлениям).">Бюджет потрачено</span></div><div class="kpi-value">${fmt(totalSpent,0)} ₽</div></div>
+    <div class="kpi-card"><div class="kpi-label"><span class="tt" data-tip="Количество новых подписчиков&#10;сообщества, привлечённых&#10;рекламой.&#10;&#10;🟢 50–100/мес — норма&#10;на старте.">Новых подписчиков</span></div><div class="kpi-value">${fmt(totalResult)}</div></div>
   `;
 }
 
