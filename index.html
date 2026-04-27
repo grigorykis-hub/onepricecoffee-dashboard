@@ -574,8 +574,8 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 628 подп. (обновлено 26.04.2026)
-// TG: t.me/opc_ivanovo — 75 подп.
+// VK: vk.ru/onepricecoffee_ivanovo — 630 подп. (обновлено 27.04.2026)
+// TG: t.me/opc_ivanovo — 76 подп.
 let posts = [
   // VK
   {id:-13, date:"2026-04-24",platform:"vk",       postType:"video", topic:"Классика встреч в ONE PRICE COFFEE💜 — я заплачу — нет, я заплачу 😄",   reach:21,  likes:0,  comments:1, reposts:0, subVk:627, subTg:75},
@@ -616,8 +616,8 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
-const currentSubVk = 628;  // обновляется скриптом автоматически
-const currentSubTg = 75;   // обновляется скриптом автоматически
+const currentSubVk = 630;  // обновляется скриптом автоматически
+const currentSubTg = 76;   // обновляется скриптом автоматически
 
 let events = [
   {id:1,name:"Мафия-вечер #1",date:"2026-03-15",type:"мафия",status:"проведено",responsible:"Алексей",budget:3000,attendance:18,notes:"Первая игра, отличный отклик"},
@@ -680,6 +680,13 @@ let revenue = [
 
   {id:45,date:"2026-04-23",location:"Проспект Ленина",      revenue:19150, customers:65, avgCheck:295},
   {id:46,date:"2026-04-23",location:"ТЦ Серебряный Город",      revenue:29375, customers:88, avgCheck:334},
+
+  {id:47,date:"2026-04-24",location:"Проспект Ленина",      revenue:22930, customers:77, avgCheck:298},
+  {id:48,date:"2026-04-25",location:"Проспект Ленина",      revenue:18573, customers:52, avgCheck:357},
+  {id:49,date:"2026-04-26",location:"Проспект Ленина",      revenue:10927, customers:31, avgCheck:352},
+  {id:50,date:"2026-04-24",location:"ТЦ Серебряный Город",      revenue:30222, customers:95, avgCheck:318},
+  {id:51,date:"2026-04-25",location:"ТЦ Серебряный Город",      revenue:56661, customers:168, avgCheck:337},
+  {id:52,date:"2026-04-26",location:"ТЦ Серебряный Город",      revenue:42436, customers:125, avgCheck:339},
 ];
 // Контент-план ОРС на апрель 2026 (КП-30-dnei-ORS-Ivanovo-Aprel.pdf)
 let tasks = [
