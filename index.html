@@ -574,8 +574,8 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 630 подп. (обновлено 29.04.2026)
-// TG: t.me/opc_ivanovo — 80 подп.
+// VK: vk.ru/onepricecoffee_ivanovo — 632 подп. (обновлено 30.04.2026)
+// TG: t.me/opc_ivanovo — 81 подп.
 let posts = [
   // VK
   {id:-18, date:"2026-04-29",platform:"vk",       postType:"photo", topic:"МАФИЯ — это не игра. Это проверка на логику, интуицию и умение читать людей",   reach:32,  likes:1,  comments:0, reposts:0, subVk:630, subTg:80},
@@ -620,8 +620,8 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
-const currentSubVk = 630;  // обновляется скриптом автоматически
-const currentSubTg = 80;   // обновляется скриптом автоматически
+const currentSubVk = 632;  // обновляется скриптом автоматически
+const currentSubTg = 81;   // обновляется скриптом автоматически
 
 let events = [
   {id:1,name:"Мафия-вечер #1",date:"2026-03-15",type:"мафия",status:"проведено",responsible:"Алексей",budget:3000,attendance:18,notes:"Первая игра, отличный отклик"},
@@ -697,6 +697,9 @@ let revenue = [
 
   {id:55,date:"2026-04-28",location:"Проспект Ленина",      revenue:14184, customers:57, avgCheck:249},
   {id:56,date:"2026-04-28",location:"ТЦ Серебряный Город",      revenue:28106, customers:94, avgCheck:299},
+
+  {id:57,date:"2026-04-29",location:"Проспект Ленина",      revenue:21819, customers:76, avgCheck:287},
+  {id:58,date:"2026-04-29",location:"ТЦ Серебряный Город",      revenue:23423, customers:82, avgCheck:286},
 ];
 // Контент-план ОРС на апрель 2026 (КП-30-dnei-ORS-Ivanovo-Aprel.pdf)
 let tasks = [
