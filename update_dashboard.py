@@ -18,17 +18,36 @@ import urllib.error
 import urllib.parse
 
 # ── Конфиг ───────────────────────────────────────────────────────────────────
-SPREADSHEET_ID = "1Gx7-FIccn0qLkH7aGKzpDSu6Ixq2xh_HTiSZR2yoiBA"
-SHEETS_LENINA_URL = (
-    "https://docs.google.com/spreadsheets/d/"
-    + SPREADSHEET_ID
-    + "/export?format=csv&gid=649208657"
-)
-SHEETS_SEREBR_URL = (
-    "https://docs.google.com/spreadsheets/d/"
-    + SPREADSHEET_ID
-    + "/export?format=csv&gid=2039636677"
-)
+# Маппинг ГГГГ-ММ → ID файла Google Sheets (папка ОПВ)
+# GID листов одинаковы для всех файлов: Ленина=649208657, Серебряный=2039636677
+OPV_FILE_MAP = {
+    "2026-01": "1nzsZA0OvD7NEl0gBq6qCUxI7v9kfqbfRjPjXlXODFlY",
+    "2026-02": "1pvpBJ1F6PEgtXvHZCyvJvDHjoe3wBqNQcveAYsLpR6c",
+    "2026-03": "1jIn-HXDhce080LSNyfQmM5zYdbLF3FUgdDg11cfq9Xc",
+    "2026-04": "1Gx7-FIccn0qLkH7aGKzpDSu6Ixq2xh_HTiSZR2yoiBA",
+    "2026-05": "1woZ5udfV-RkEFAmBApo4h1_-fOavvJWcfCWI7jCPskk",
+    # При смене месяца добавить: "ГГГГ-ММ": "FILE_ID"
+}
+GID_LENINA  = "649208657"
+GID_SEREBR  = "2039636677"
+
+def get_sheets_urls():
+    month_key = TODAY.strftime("%Y-%m")
+    file_id = OPV_FILE_MAP.get(month_key)
+    if not file_id:
+        past = sorted(k for k in OPV_FILE_MAP if k <= month_key)
+        if past:
+            month_key = past[-1]
+            file_id = OPV_FILE_MAP[month_key]
+            log(f"  [WARN] Файл {TODAY.strftime('%m.%Y')} не найден — используем {month_key}")
+        else:
+            log("  [ERR] Нет файла в маппинге")
+            return None, None
+    base = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=csv"
+    log(f"  Файл ОПВ: {month_key} (ID: {file_id})")
+    return f"{base}&gid={GID_LENINA}", f"{base}&gid={GID_SEREBR}"
+
+SPREADSHEET_ID = list(OPV_FILE_MAP.values())[-1]  # fallback для совместимости
 VK_GROUP   = "onepricecoffee_ivanovo"
 TG_CHANNEL = "opc_ivanovo"
 HTML_FILE  = "index.html"
@@ -112,14 +131,18 @@ def fetch_sheets_revenue():
     log("Загрузка Google Sheets (ежедневные листы)...")
     result = {}
 
-    raw_lenina = fetch(SHEETS_LENINA_URL)
-    if raw_lenina:
+    url_lenina, url_serebr = get_sheets_urls()
+    if not url_lenina:
+        return None
+
+    raw_lenina = fetch(url_lenina)
+    if raw_lenina and "DOCTYPE" not in raw_lenina[:200]:
         result["lenina"] = parse_daily_sheet(raw_lenina, "Пр. Ленина")
     else:
         log("  [ERR] Не удалось загрузить лист Ленина")
 
-    raw_serebr = fetch(SHEETS_SEREBR_URL)
-    if raw_serebr:
+    raw_serebr = fetch(url_serebr)
+    if raw_serebr and "DOCTYPE" not in raw_serebr[:200]:
         result["serebr"] = parse_daily_sheet(raw_serebr, "ТЦ Серебряный")
     else:
         log("  [ERR] Не удалось загрузить лист Серебряный")
