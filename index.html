@@ -574,10 +574,12 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 638 подп. (обновлено 08.05.2026)
-// TG: t.me/opc_ivanovo — 81 подп.
+// VK: vk.ru/onepricecoffee_ivanovo — 638 подп. (обновлено 09.05.2026)
+// TG: t.me/opc_ivanovo — 80 подп.
 let posts = [
   // VK
+  {id:-28, date:"2026-05-09",platform:"vk",       postType:"photo", topic:"С Днём Победы 🌿 Пусть этот день будет наполнен теплом, спокойствием и време",   reach:32,  likes:1,  comments:0, reposts:0, subVk:638, subTg:80},
+  {id:-29, date:"2026-05-08",platform:"vk",       postType:"photo", topic:"Умножаем ваше хорошее настроение! ❤️ Простая математика: с каждым глотком н",   reach:147,  likes:3,  comments:0, reposts:0, subVk:638, subTg:80},
   {id:-26, date:"2026-05-07",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:9,  likes:2,  comments:0, reposts:1, subVk:637, subTg:81},
   {id:-25, date:"2026-05-06",platform:"vk",       postType:"photo", topic:"Этой весной в ONE PRICE COFFEE появилось особенное меню — линейка напитков,",   reach:95,  likes:3,  comments:0, reposts:0, subVk:637, subTg:81},
   {id:-22, date:"2026-05-04",platform:"vk",       postType:"photo", topic:"Наши вкусные бамблы 😍 Пора заходить и пробовать! БАМБЛМАНИЯ в ONE PRICE COF",   reach:30,  likes:0,  comments:0, reposts:0, subVk:636, subTg:81},
@@ -601,6 +603,8 @@ let posts = [
   {id:7,  date:"2026-04-02",platform:"vk",       postType:"photo", topic:"Обновление меню: эспрессо-тоник и матча-тоник",               reach:0,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:8,  date:"2026-03-26",platform:"vk",       postType:"photo", topic:"Опрос: хотите Мафию в ONE PRICE COFFEE?",                  reach:0,  likes:10, comments:0, reposts:1, subVk:561, subTg:68},
   // Telegram @opc_ivanovo
+  {id:-30, date:"2026-05-09",platform:"telegram",       postType:"photo", topic:"Новый пост",   reach:12,  likes:0,  comments:0, reposts:0, subVk:638, subTg:80},
+  {id:-31, date:"2026-05-08",platform:"telegram",       postType:"photo", topic:"С Днём Победы 🌿Пусть этот день будет наполнен теплом, спокойствием и времен",   reach:26,  likes:0,  comments:0, reposts:0, subVk:638, subTg:80},
   {id:-27, date:"2026-05-07",platform:"telegram",       postType:"photo", topic:"☕️ One Price Coffee — место, где кофе вкуснее, а настроение лучше&#33;Забег",   reach:22,  likes:0,  comments:0, reposts:0, subVk:637, subTg:81},
   {id:-24, date:"2026-05-05",platform:"telegram",       postType:"photo", topic:"Этой весной в ONE PRICE COFFEE появилось особенное меню — линейка напитков,",   reach:20,  likes:0,  comments:0, reposts:0, subVk:638, subTg:81},
   {id:-23, date:"2026-05-04",platform:"telegram",       postType:"photo", topic:"Наши вкусные бамблы 😍Пора заходить и пробовать&#33;БАМБЛМАНИЯ в ONE PRICE C",   reach:26,  likes:0,  comments:0, reposts:0, subVk:636, subTg:81},
@@ -629,7 +633,7 @@ let posts = [
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
 const currentSubVk = 638;  // обновляется скриптом автоматически
-const currentSubTg = 81;   // обновляется скриптом автоматически
+const currentSubTg = 80;   // обновляется скриптом автоматически
 
 let events = [
   {id:1,name:"Мафия-вечер #1",date:"2026-03-15",type:"мафия",status:"проведено",responsible:"Алексей",budget:3000,attendance:18,notes:"Первая игра, отличный отклик"},
@@ -724,6 +728,9 @@ let revenue = [
   {id:70,date:"2026-05-04",location:"ТЦ Серебряный Город",      revenue:30379, customers:100, avgCheck:304},
   {id:71,date:"2026-05-05",location:"ТЦ Серебряный Город",      revenue:34097, customers:109, avgCheck:313},
   {id:72,date:"2026-05-06",location:"ТЦ Серебряный Город",      revenue:27206, customers:95, avgCheck:286},
+
+  {id:73,date:"2026-05-07",location:"Проспект Ленина",      revenue:26693, customers:88, avgCheck:303},
+  {id:74,date:"2026-05-07",location:"ТЦ Серебряный Город",      revenue:40325, customers:120, avgCheck:336},
 ];
 // Контент-план ОРС на апрель 2026 (КП-30-dnei-ORS-Ivanovo-Aprel.pdf)
 let tasks = [
