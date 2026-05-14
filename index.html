@@ -574,10 +574,11 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 644 подп. (обновлено 13.05.2026)
+// VK: vk.ru/onepricecoffee_ivanovo — 647 подп. (обновлено 14.05.2026)
 // TG: t.me/opc_ivanovo — 79 подп.
 let posts = [
   // VK
+  {id:-38, date:"2026-05-14",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:5,  likes:0,  comments:0, reposts:0, subVk:647, subTg:79},
   {id:-36, date:"2026-05-13",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:3,  likes:1,  comments:0, reposts:0, subVk:644, subTg:79},
   {id:-34, date:"2026-05-12",platform:"vk",       postType:"photo", topic:"БАМБЛМАНИЯ в самом разгаре! 🔥 🔥 🔥 Успейте получить свой любимый бамбл в под",   reach:16,  likes:0,  comments:0, reposts:0, subVk:640, subTg:80},
   {id:-32, date:"2026-05-11",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:7,  likes:0,  comments:0, reposts:0, subVk:640, subTg:80},
@@ -606,6 +607,7 @@ let posts = [
   {id:7,  date:"2026-04-02",platform:"vk",       postType:"photo", topic:"Обновление меню: эспрессо-тоник и матча-тоник",               reach:0,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:8,  date:"2026-03-26",platform:"vk",       postType:"photo", topic:"Опрос: хотите Мафию в ONE PRICE COFFEE?",                  reach:0,  likes:10, comments:0, reposts:1, subVk:561, subTg:68},
   // Telegram @opc_ivanovo
+  {id:-39, date:"2026-05-14",platform:"telegram",       postType:"photo", topic:"Новый пост",   reach:13,  likes:0,  comments:0, reposts:0, subVk:647, subTg:79},
   {id:-37, date:"2026-05-13",platform:"telegram",       postType:"photo", topic:"Новый пост",   reach:16,  likes:0,  comments:0, reposts:0, subVk:644, subTg:79},
   {id:-35, date:"2026-05-12",platform:"telegram",       postType:"photo", topic:"Новый пост",   reach:18,  likes:0,  comments:0, reposts:0, subVk:640, subTg:80},
   {id:-33, date:"2026-05-11",platform:"telegram",       postType:"photo", topic:"Новый пост",   reach:17,  likes:0,  comments:0, reposts:0, subVk:640, subTg:80},
@@ -638,7 +640,7 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
-const currentSubVk = 644;  // обновляется скриптом автоматически
+const currentSubVk = 647;  // обновляется скриптом автоматически
 const currentSubTg = 79;   // обновляется скриптом автоматически
 
 let events = [
@@ -749,6 +751,9 @@ let revenue = [
 
   {id:83,date:"2026-05-12",location:"Проспект Ленина",      revenue:23989, customers:83, avgCheck:289},
   {id:84,date:"2026-05-12",location:"ТЦ Серебряный Город",      revenue:26934, customers:80, avgCheck:337},
+
+  {id:85,date:"2026-05-13",location:"Проспект Ленина",      revenue:30117, customers:97, avgCheck:310},
+  {id:86,date:"2026-05-13",location:"ТЦ Серебряный Город",      revenue:27657, customers:91, avgCheck:304},
 ];
 // Контент-план ОРС на апрель 2026 (КП-30-dnei-ORS-Ivanovo-Aprel.pdf)
 let tasks = [
