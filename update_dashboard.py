@@ -569,15 +569,14 @@ def update_vk_reviews_in_html(html, vk_rating, vk_board_reviews):
         import json as _j
         entries = []
         for r in vk_board_reviews:
-            text = r["text"].replace("\", "\\").replace("`", "'").replace("${", "\${")
+            text = r["text"].replace("\\", "\\\\").replace("`", "'").replace("${", "\\${")
             entries.append(
                 f'  {{ source:"vk_board", author:{_j.dumps(r["author"], ensure_ascii=False)}, '
                 f'stars:null, date:{_j.dumps(r["date"])}, text:{_j.dumps(text, ensure_ascii=False)} }}'
             )
-        new_array = "const vkBoardReviews = [
-" + ",\n".join(entries) + "\n];"
+        new_array = "const vkBoardReviews = [\n" + ",\n".join(entries) + "\n];"
         html = re.sub(
-            r'const vkBoardReviews\s*=\s*\[[^\]]*\];',
+            r'const vkBoardReviews = \[[^;]*?\];',
             new_array,
             html,
             flags=re.DOTALL
