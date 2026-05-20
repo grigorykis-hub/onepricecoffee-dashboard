@@ -230,7 +230,11 @@ tr:hover td { background: var(--sidebar-bg); }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
       Таргет VK
     </a>
-    <a onclick="navigate('tasks')" id="nav-tasks">
+    <a onclick="navigate('reviews')" id="nav-reviews">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Отзывы
+    </a>
+        <a onclick="navigate('tasks')" id="nav-tasks">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>
       Задачи
     </a>
@@ -255,6 +259,33 @@ tr:hover td { background: var(--sidebar-bg); }
     <div class="page active" id="page-dashboard">
       <h1 class="page-title" style="margin-bottom:20px">Главная</h1>
       <div class="kpi-grid" id="kpi-grid"></div>
+      <!-- Рейтинги -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+        <div class="card" style="flex:1;min-width:200px;display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer" onclick="navigate('reviews')">
+          <div style="font-size:32px;line-height:1">🗺️</div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Яндекс Карты</div>
+            <div style="display:flex;align-items:baseline;gap:6px">
+              <span style="font-size:26px;font-weight:700;color:var(--primary)" id="rating-yandex-val">4.7</span>
+              <span style="font-size:13px;color:var(--muted)">/ 5</span>
+            </div>
+            <div id="rating-yandex-stars" style="font-size:15px;letter-spacing:1px;line-height:1.2">★★★★★</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px"><span id="rating-yandex-count">137</span> оценок · <span id="rating-yandex-reviews">85</span> отзывов</div>
+          </div>
+          <div style="margin-left:auto;font-size:11px;color:var(--muted)">🏆 Хорошее место 2026</div>
+        </div>
+        <div class="card" style="flex:1;min-width:200px;display:flex;align-items:center;gap:16px;padding:16px 20px">
+          <div style="font-size:32px;line-height:1">💬</div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">VK Сообщество</div>
+            <div style="display:flex;align-items:baseline;gap:6px">
+              <span style="font-size:26px;font-weight:700;color:var(--primary)">—</span>
+            </div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px">Отзывы в теме обсуждений</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px"><a href="https://vk.com/topic-236450024_55892727" target="_blank" style="color:var(--primary)">Открыть тему</a></div>
+          </div>
+        </div>
+      </div>
       <div class="grid2">
         <div class="card">
           <h2 class="section-title">
@@ -352,6 +383,60 @@ tr:hover td { background: var(--sidebar-bg); }
     </div>
 
     <!-- TARGET VK -->
+    <!-- page-reviews -->
+    <div class="page" id="page-reviews">
+      <div class="page-head">
+        <h1 class="page-title">Отзывы</h1>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label style="font-size:13px;color:var(--muted)">Фильтр:</label>
+          <select id="reviews-filter" class="input" style="width:auto;padding:6px 10px;font-size:13px" onchange="renderReviews()">
+            <option value="all">Все оценки</option>
+            <option value="lt5" selected>Ниже 5 ★</option>
+            <option value="lt4">Ниже 4 ★</option>
+            <option value="lt3">Ниже 3 ★</option>
+            <option value="1">1 ★</option>
+            <option value="2">2 ★</option>
+            <option value="3">3 ★</option>
+            <option value="4">4 ★</option>
+            <option value="5">5 ★</option>
+          </select>
+          <select id="reviews-source" class="input" style="width:auto;padding:6px 10px;font-size:13px" onchange="renderReviews()">
+            <option value="all">Все источники</option>
+            <option value="yandex">Яндекс Карты</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Рейтинг-шапка -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+        <div class="card" style="flex:1;min-width:220px;padding:20px 24px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Яндекс Карты</div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div>
+              <div style="font-size:48px;font-weight:800;color:var(--primary);line-height:1">4.7</div>
+              <div style="font-size:18px;color:#f5a623;letter-spacing:2px;margin-top:2px">★★★★★</div>
+            </div>
+            <div style="border-left:1px solid var(--border);padding-left:16px">
+              <div style="font-size:13px;margin-bottom:4px"><strong>137</strong> <span style="color:var(--muted)">оценок</span></div>
+              <div style="font-size:13px;margin-bottom:8px"><strong>85</strong> <span style="color:var(--muted)">отзывов</span></div>
+              <div style="font-size:11px;background:#f5a62322;color:#c07800;padding:3px 8px;border-radius:20px;display:inline-block;font-weight:600">🏆 Хорошее место 2026</div>
+            </div>
+          </div>
+          <!-- Star breakdown -->
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:4px" id="yandex-breakdown"></div>
+          <a href="https://yandex.ru/maps/org/onepricecoffee/236703503674/reviews/" target="_blank" style="display:inline-block;margin-top:12px;font-size:12px;color:var(--primary)">Открыть на Яндекс Картах →</a>
+        </div>
+        <div class="card" style="flex:1;min-width:220px;padding:20px 24px;display:flex;flex-direction:column;justify-content:center">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">VK Сообщество</div>
+          <div style="font-size:14px;color:var(--text);margin-bottom:8px">Рейтинг не активирован.<br>Отзывы в теме обсуждений.</div>
+          <a href="https://vk.com/topic-236450024_55892727" target="_blank" style="font-size:12px;color:var(--primary)">Перейти к отзывам VK →</a>
+        </div>
+      </div>
+
+      <!-- Reviews list -->
+      <div id="reviews-list"></div>
+    </div>
+
     <div class="page" id="page-target">
       <div class="page-head">
         <h1 class="page-title">Таргетированная реклама VK</h1>
@@ -841,6 +926,7 @@ function renderPage(page) {
   if(page==='revenue') renderRevenue();
   if(page==='tasks') renderTasks();
   if(page==='target') renderTarget();
+  if(page==='reviews') renderReviews();
 }
 
 
@@ -1053,6 +1139,140 @@ function handleTargetXlsx(input) {
 function openTargetForm() {}
 function closeTargetForm() {}
 function saveTargetAd(e) { e.preventDefault(); }
+
+
+// ── REVIEWS ───────────────────────────────────────────────────────────────────
+const reviewsData = [
+  // ── 1★ ──
+  { source:'yandex', author:'Thai Fire', stars:1, date:'11.02.2023',
+    text:'Якобы "старший бармен" разговаривала со мной на мате и ужасно грубила, а началось все в том что я попросила продать мне сендвич но не из морозилки. Чувство безнаказанности зашкаливает, такого хамства и наглости я ещё не видела в сфере торговли.' },
+  // ── 2★ ──
+  { source:'yandex', author:'Шон', stars:2, date:'21.01.2026',
+    text:'В целом не плохое место, но рука не поднимается поставить пять звезд из-за менеджера АЛЕКСЕЯ. Помимо того, что грубит, хамит клиентам, так ещё и смотреть как он трогает продукты руками с грязными ногтями — это перебор.' },
+  { source:'yandex', author:'Харламова Оля', stars:2, date:'06.01.2026',
+    text:'Заказывала сегодня днем матчу на кокосовом молоке, сначала вкус показался горьким, а потом стали попадаться неразмешанные комки чая, решила размешать трубочкой и стало вообще отвратительно, не стала продолжать пить.' },
+  { source:'yandex', author:'Ани С', stars:2, date:'17.08.2025',
+    text:'Заказали кофе, заплатили 180₽. На просьбу дать сахар ответили — закончился. Продавцы были недовольны, одна вышла и громко хлопнула дверью. Уважаемые продавцы, если у вас закончился сахар или ещё что-то — предупреждайте заранее. И если вам не нравится ваша работа — найдите другую.' },
+  { source:'yandex', author:'Ангелина', stars:2, date:'08.05.2024',
+    text:'Лимонад фейхуа базилик на вкус просто вода, ни сиропа базилика и ни фейхуа основы не чувствовалось вообще! Работали две девочки, разговаривали на свои темы. Не спросили бонусную программу. Ужасно грязные витрины, все в крошках, ценники стоят — десертов нет.' },
+  { source:'yandex', author:'Елизавета К.', stars:2, date:'31.08.2023',
+    text:'Отвратительные бариста, хамки, делают всё грязно и невкусно. Единственный бариста Евгения готовит вкусно и качественно. Все остальные просто ужасно готовят, путают ингредиенты. После двух раз хамского отношения больше туда не вернусь.' },
+  { source:'yandex', author:'Татьяна Т.', stars:2, date:'14.08.2022',
+    text:'Хуже кофе я не пила! Это даже не кофе, а не пойми что. Самый худший кофе, что я пила в своей жизни. Выкинули, даже пить не стали. Деньги на ветер.' },
+  { source:'yandex', author:'Виктория', stars:2, date:'11.08.2022',
+    text:'Заметила такую особенность, что вкус меняется вместе с персоналом. Увидела новую бариста, произвела не очень хорошее впечатление, надеялась на вкус это не повлияет, но нет. Какое отношение — такой и кофе, на двоечку. Раньше было лучше.' },
+  { source:'yandex', author:'Евгения Б', stars:2, date:'12.06.2022',
+    text:'Дешево, невкусно, грязные столы, персонал который не будет исправлять свои косяки. Кофе заказывала холодным — сделали горячим, пончик замороженный. Десерт был похож на растаявший пластилин.' },
+  // ── 3★ ──
+  { source:'yandex', author:'Анастасия Филатова', stars:3, date:'05.04.2026',
+    text:'Кофе вкусный, интересные сезонные напитки, много разных десертов. Всё было на 10 звёзд пока не сменили персонал. Теперь там одна хамка и две очень медленные девушки. Плюс вообще не разбираются в зёрнах, не могут ничего посоветовать. Очень жаль, всё губит плохо подобранный персонал.' },
+  { source:'yandex', author:'Иван Комизерко', stars:3, date:'02.09.2025',
+    text:'Зависит от персонала. Могут сделать всё красиво и качественно, а может и не повезти..' },
+  { source:'yandex', author:'Олеся Калиниченко', stars:3, date:'25.11.2024',
+    text:'Меню показалось скучным, ничего особенного не предложили.' },
+  { source:'yandex', author:'blessedbyfate', stars:3, date:'17.10.2021',
+    text:'Кофе хороший, но с сиропами превращается в нормальный. Единственный хороший «вкусовой» кофе — Сырный латте, но его достаточно часто не оказывается в наличии. Обслуживание такое себе — ощущение, что гостям мини-кофейни не особо рады.' },
+  { source:'yandex', author:'Константин Львов', stars:3, date:'13.09.2021',
+    text:'Пил капучино среднего объема, вкус кофе совершенно не чувствуется. Большой выбор молока и других добавок, но сам кофе оставляет желать лучшего.' },
+  // ── 4★ ──
+  { source:'yandex', author:'Аноним', stars:4, date:'11.06.2020',
+    text:'Кофе достойный и по демократичным ценам. Хорошего обслуживания я не увидел, хотя может придираюсь. В целом на 4 балла, если рассматривать как кофе с собой.' },
+];
+
+const yandexBreakdown = { 5: 118, 4: 5, 3: 6, 2: 8, 1: 1 }; // approximation from 137 ratings
+
+function starsHtml(n, total=5) {
+  let s = '';
+  for(let i=1;i<=total;i++) s += i<=n ? '<span style="color:#f5a623">★</span>' : '<span style="color:#ccc">★</span>';
+  return s;
+}
+
+function reviewSourceBadge(src) {
+  if(src==='yandex') return '<span style="font-size:10px;background:#fc3f1d22;color:#c0220f;padding:2px 7px;border-radius:20px;font-weight:600">Яндекс Карты</span>';
+  if(src==='vk') return '<span style="font-size:10px;background:#4c75a322;color:#2d5a8e;padding:2px 7px;border-radius:20px;font-weight:600">ВКонтакте</span>';
+  return '';
+}
+
+function starsColorClass(n) {
+  if(n<=1) return '#c0392b';
+  if(n<=2) return '#e67e22';
+  if(n<=3) return '#f39c12';
+  if(n<=4) return '#27ae60';
+  return '#1a7a30';
+}
+
+function renderReviews() {
+  // Breakdown bar chart
+  const bd = document.getElementById('yandex-breakdown');
+  if(bd) {
+    const total = Object.values(yandexBreakdown).reduce((a,b)=>a+b,0);
+    bd.innerHTML = [5,4,3,2,1].map(n => {
+      const cnt = yandexBreakdown[n]||0;
+      const pct = Math.round(cnt/total*100);
+      return `<div style="display:flex;align-items:center;gap:8px;font-size:12px">
+        <span style="width:14px;text-align:right;color:var(--muted)">${n}</span>
+        <span style="color:#f5a623;font-size:11px">★</span>
+        <div style="flex:1;background:var(--border);border-radius:4px;height:6px;overflow:hidden">
+          <div style="width:${pct}%;background:#f5a623;height:100%;border-radius:4px"></div>
+        </div>
+        <span style="width:24px;color:var(--muted)">${cnt}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Filter
+  const filterVal = document.getElementById('reviews-filter')?.value || 'lt5';
+  const sourceVal = document.getElementById('reviews-source')?.value || 'all';
+
+  let filtered = reviewsData.filter(r => {
+    if(sourceVal !== 'all' && r.source !== sourceVal) return false;
+    if(filterVal === 'all') return true;
+    if(filterVal === 'lt5') return r.stars < 5;
+    if(filterVal === 'lt4') return r.stars < 4;
+    if(filterVal === 'lt3') return r.stars < 3;
+    return r.stars === parseInt(filterVal);
+  });
+
+  // Sort: newest first (by date string dd.mm.yyyy)
+  filtered.sort((a,b) => {
+    const toTs = d => { const p=d.split('.'); return new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime(); };
+    return toTs(b.date) - toTs(a.date);
+  });
+
+  const list = document.getElementById('reviews-list');
+  if(!list) return;
+
+  if(filtered.length === 0) {
+    list.innerHTML = '<div class="card" style="text-align:center;padding:32px;color:var(--muted)">Нет отзывов по выбранному фильтру</div>';
+    return;
+  }
+
+  // Stats bar
+  const avgStars = (filtered.reduce((s,r)=>s+r.stars,0)/filtered.length).toFixed(1);
+  const statsHtml = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+    <div style="font-size:13px;color:var(--muted)">Показано: <strong style="color:var(--text)">${filtered.length}</strong></div>
+    <div style="font-size:13px;color:var(--muted)">Средняя оценка выборки: <strong style="color:${starsColorClass(parseFloat(avgStars))}">${avgStars} ★</strong></div>
+  </div>`;
+
+  list.innerHTML = statsHtml + filtered.map(r => `
+    <div class="card" style="margin-bottom:12px;padding:16px 20px;border-left:3px solid ${starsColorClass(r.stars)}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--primary);flex-shrink:0">${r.author[0]}</div>
+          <div>
+            <div style="font-weight:600;font-size:14px">${r.author}</div>
+            <div style="font-size:12px;color:var(--muted)">${r.date} · ${reviewSourceBadge(r.source)}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <div style="font-size:18px;letter-spacing:1px">${starsHtml(r.stars)}</div>
+          <div style="font-size:11px;font-weight:700;color:${starsColorClass(r.stars)}">${r.stars} / 5</div>
+        </div>
+      </div>
+      <div style="font-size:13px;line-height:1.6;color:var(--text)">${r.text}</div>
+    </div>
+  `).join('');
+}
 
 // ── DARK MODE ──────────────────────────────────────────────────────────────────
 function toggleDark() {
