@@ -471,6 +471,121 @@ def update_current_subs_var(html, sub_vk, sub_tg):
     html = re.sub(r'const currentSubTg = \d+;', f'const currentSubTg = {sub_tg};', html)
     return html
 
+# ── VK Reviews ────────────────────────────────────────────────────────────────
+VK_REVIEWS_TOPIC_ID = 55892727   # топик "ОТЗЫВЫ" в группе
+VK_BOARD_GROUP_ID   = 236450024  # group_id для board API
+
+def fetch_vk_rating():
+    """Возвращает {mark, review_cnt, marks_stat} или None."""
+    token = os.environ.get("VK_TOKEN", "")
+    if not token:
+        return None
+    resp = vk_api("groups.getById", {
+        "group_id": VK_BOARD_GROUP_ID,
+        "fields": "rating"
+    }, token)
+    if not resp:
+        return None
+    groups = resp.get("groups") or resp  # v5.199 vs v5.131
+    if isinstance(groups, list) and groups:
+        rating = groups[0].get("rating")
+        if rating:
+            log(f"  VK рейтинг: {rating.get('mark')} ({rating.get('review_cnt')} отзывов)")
+            return rating
+    return None
+
+def fetch_vk_board_reviews():
+    """Возвращает список комментариев из темы ОТЗЫВЫ."""
+    token = os.environ.get("VK_TOKEN", "")
+    if not token:
+        return []
+    resp = vk_api("board.getComments", {
+        "group_id": VK_BOARD_GROUP_ID,
+        "topic_id": VK_REVIEWS_TOPIC_ID,
+        "count": 100,
+        "extended": 1,
+        "sort": "desc"
+    }, token)
+    if not resp:
+        return []
+    items = resp.get("items", [])
+    profiles = {p["id"]: p for p in resp.get("profiles", [])}
+    result = []
+    for item in items:
+        fid = item.get("from_id", 0)
+        if fid < 0:           # пост группы — пропускаем
+            continue
+        text = item.get("text", "").strip()
+        if not text or len(text) < 5:
+            continue
+        profile = profiles.get(fid, {})
+        name = f"{profile.get('first_name','')} {profile.get('last_name','')}".strip() or "Аноним"
+        import datetime as _dt
+        dt = _dt.datetime.fromtimestamp(item["date"])
+        result.append({
+            "author": name,
+            "date": dt.strftime("%d.%m.%Y"),
+            "text": text,
+            "source": "vk_board"
+        })
+    log(f"  VK обсуждения: {len(result)} отзывов")
+    return result
+
+
+def update_vk_reviews_in_html(html, vk_rating, vk_board_reviews):
+    """Обновляет VK рейтинг и отзывы из обсуждений в index.html."""
+    import re, json as _json
+
+    # 1. Update VK rating block
+    if vk_rating:
+        mark = vk_rating.get("mark", 0)
+        cnt  = vk_rating.get("review_cnt", 0)
+        stat = vk_rating.get("marks_stat", [])
+        # Build breakdown dict {stars: count}
+        bd = {s["mark"]: s["marks_count"] for s in stat}
+
+        # Replace vk rating mark placeholder in the reviews page header
+        old_vk_dash = '<div style="font-size:48px;font-weight:800;color:var(--primary);line-height:1">—</div>'
+        new_vk_mark = f'<div style="font-size:48px;font-weight:800;color:var(--primary);line-height:1">{mark}</div>'
+        html = html.replace(old_vk_dash, new_vk_mark, 1)
+
+        # Update vkBreakdown JS variable
+        bd_json = _json.dumps(bd)
+        html = re.sub(
+            r'const vkBreakdown\s*=\s*\{[^}]*\};',
+            f'const vkBreakdown = {bd_json};',
+            html
+        )
+        # Update vkRatingData JS variable
+        vk_data = _json.dumps({"mark": mark, "review_cnt": cnt})
+        html = re.sub(
+            r'const vkRatingData\s*=\s*\{[^}]*\};',
+            f'const vkRatingData = {vk_data};',
+            html
+        )
+
+    # 2. Update VK board reviews JS array
+    if vk_board_reviews:
+        import json as _j
+        entries = []
+        for r in vk_board_reviews:
+            text = r["text"].replace("\", "\\").replace("`", "'").replace("${", "\${")
+            entries.append(
+                f'  {{ source:"vk_board", author:{_j.dumps(r["author"], ensure_ascii=False)}, '
+                f'stars:null, date:{_j.dumps(r["date"])}, text:{_j.dumps(text, ensure_ascii=False)} }}'
+            )
+        new_array = "const vkBoardReviews = [
+" + ",\n".join(entries) + "\n];"
+        html = re.sub(
+            r'const vkBoardReviews\s*=\s*\[[^\]]*\];',
+            new_array,
+            html,
+            flags=re.DOTALL
+        )
+
+    return html
+
+
 def main():
     log(f"\n{'='*60}")
     log(f"OnePriceCoffee Dashboard Updater — {TODAY}")
@@ -515,6 +630,17 @@ def main():
 
     # ── 5. Сохранение ───────────────────────────────────────────────────────
     write_html(html)
+    # VK Reviews & Rating
+    log("\nОбновление VK рейтинга и отзывов из обсуждений...")
+    vk_rating    = fetch_vk_rating()
+    vk_board_rev = fetch_vk_board_reviews()
+    if vk_rating or vk_board_rev:
+        with open("index.html", encoding="utf-8") as _f:
+            _html = _f.read()
+        _html = update_vk_reviews_in_html(_html, vk_rating, vk_board_rev)
+        with open("index.html", "w", encoding="utf-8") as _f:
+            _f.write(_html)
+
     log(f"\nГотово: VK +{vk_added} | TG +{tg_added} | Выручка +{revenue_added}")
     log(f"   Подписчики: VK={sub_vk} | TG={sub_tg}")
 

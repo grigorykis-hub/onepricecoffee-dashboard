@@ -274,15 +274,16 @@ tr:hover td { background: var(--sidebar-bg); }
           </div>
           <div style="margin-left:auto;font-size:11px;color:var(--muted)">🏆 Хорошее место 2026</div>
         </div>
-        <div class="card" style="flex:1;min-width:200px;display:flex;align-items:center;gap:16px;padding:16px 20px">
+        <div class="card" style="flex:1;min-width:200px;display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer" onclick="navigate('reviews')">
           <div style="font-size:32px;line-height:1">💬</div>
           <div>
-            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">VK Сообщество</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">ВКонтакте</div>
             <div style="display:flex;align-items:baseline;gap:6px">
-              <span style="font-size:26px;font-weight:700;color:var(--primary)">—</span>
+              <span style="font-size:26px;font-weight:700;color:var(--primary)" id="vk-rating-main">3.7</span>
+              <span style="font-size:13px;color:var(--muted)">/ 5</span>
             </div>
-            <div style="font-size:12px;color:var(--text);margin-top:2px">Отзывы в теме обсуждений</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px"><a href="https://vk.com/topic-236450024_55892727" target="_blank" style="color:var(--primary)">Открыть тему</a></div>
+            <div style="font-size:12px;color:#4c75a3;letter-spacing:1px;margin-top:2px">★★★☆☆</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px"><span id="vk-rating-cnt-main">3</span> отзыва</div>
           </div>
         </div>
       </div>
@@ -426,10 +427,20 @@ tr:hover td { background: var(--sidebar-bg); }
           <div style="margin-top:14px;display:flex;flex-direction:column;gap:4px" id="yandex-breakdown"></div>
           <a href="https://yandex.ru/maps/org/onepricecoffee/236703503674/reviews/" target="_blank" style="display:inline-block;margin-top:12px;font-size:12px;color:var(--primary)">Открыть на Яндекс Картах →</a>
         </div>
-        <div class="card" style="flex:1;min-width:220px;padding:20px 24px;display:flex;flex-direction:column;justify-content:center">
+        <div class="card" style="flex:1;min-width:220px;padding:20px 24px">
           <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">VK Сообщество</div>
-          <div style="font-size:14px;color:var(--text);margin-bottom:8px">Рейтинг не активирован.<br>Отзывы в теме обсуждений.</div>
-          <a href="https://vk.com/topic-236450024_55892727" target="_blank" style="font-size:12px;color:var(--primary)">Перейти к отзывам VK →</a>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div>
+              <div style="font-size:48px;font-weight:800;color:var(--primary);line-height:1" id="vk-rating-mark">3.7</div>
+              <div style="font-size:18px;color:#4c75a3;letter-spacing:2px;margin-top:2px" id="vk-rating-stars">★★★☆☆</div>
+            </div>
+            <div style="border-left:1px solid var(--border);padding-left:16px">
+              <div style="font-size:13px;margin-bottom:4px"><strong id="vk-rating-cnt">3</strong> <span style="color:var(--muted)">отзыва</span></div>
+              <div style="font-size:13px;margin-bottom:8px"><span style="color:var(--muted)">Виджет оценок VK</span></div>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:4px" id="vk-breakdown"></div>
+          <a href="https://vk.com/reviews-236450024" target="_blank" style="display:inline-block;margin-top:12px;font-size:12px;color:var(--primary)">Открыть отзывы VK →</a>
         </div>
       </div>
 
@@ -1148,6 +1159,12 @@ function saveTargetAd(e) { e.preventDefault(); }
 
 
 // ── REVIEWS ───────────────────────────────────────────────────────────────────
+// VK rating data (auto-updated by GitHub Actions daily)
+const vkRatingData = {"mark": 3.7, "review_cnt": 3};
+const vkBreakdown = {"5": 2, "4": 0, "3": 0, "2": 0, "1": 1};
+// VK board reviews (auto-updated by GitHub Actions daily)
+const vkBoardReviews = [];
+
 const reviewsData = [
   // ── 1★ ──
   { source:'yandex', author:'Thai Fire', stars:1, date:'11.02.2023',
@@ -1208,7 +1225,7 @@ function starsColorClass(n) {
 }
 
 function renderReviews() {
-  // Breakdown bar chart
+  // Яндекс breakdown
   const bd = document.getElementById('yandex-breakdown');
   if(bd) {
     const total = Object.values(yandexBreakdown).reduce((a,b)=>a+b,0);
@@ -1226,13 +1243,48 @@ function renderReviews() {
     }).join('');
   }
 
+  // VK rating & breakdown
+  const vkMark = document.getElementById('vk-rating-mark');
+  const vkCnt  = document.getElementById('vk-rating-cnt');
+  const vkMain = document.getElementById('vk-rating-main');
+  const vkCntMain = document.getElementById('vk-rating-cnt-main');
+  if(vkMark && vkRatingData.mark) {
+    vkMark.textContent = vkRatingData.mark;
+    if(vkCnt) vkCnt.textContent = vkRatingData.review_cnt;
+    if(vkMain) vkMain.textContent = vkRatingData.mark;
+    if(vkCntMain) vkCntMain.textContent = vkRatingData.review_cnt;
+  }
+  const vkBD = document.getElementById('vk-breakdown');
+  if(vkBD && vkBreakdown) {
+    const total = Object.values(vkBreakdown).reduce((a,b)=>a+b,0)||1;
+    vkBD.innerHTML = [5,4,3,2,1].map(n => {
+      const cnt = vkBreakdown[n]||vkBreakdown[String(n)]||0;
+      const pct = Math.round(cnt/total*100);
+      return `<div style="display:flex;align-items:center;gap:8px;font-size:12px">
+        <span style="width:14px;text-align:right;color:var(--muted)">${n}</span>
+        <span style="color:#4c75a3;font-size:11px">★</span>
+        <div style="flex:1;background:var(--border);border-radius:4px;height:6px;overflow:hidden">
+          <div style="width:${pct}%;background:#4c75a3;height:100%;border-radius:4px"></div>
+        </div>
+        <span style="width:24px;color:var(--muted)">${cnt}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Merge VK board reviews into filter pool (no stars — show always in "all" or vk_board filter)
+  const allReviews = [
+    ...reviewsData,
+    ...vkBoardReviews.map(r => ({...r, stars: r.stars || null}))
+  ];
+
   // Filter
   const filterVal = document.getElementById('reviews-filter')?.value || 'lt5';
   const sourceVal = document.getElementById('reviews-source')?.value || 'all';
 
-  let filtered = reviewsData.filter(r => {
+  let filtered = allReviews.filter(r => {
     if(sourceVal !== 'all' && r.source !== sourceVal) return false;
     if(filterVal === 'all') return true;
+    if(r.stars === null) return filterVal === 'all';  // VK board — только в "все"
     if(filterVal === 'lt5') return r.stars < 5;
     if(filterVal === 'lt4') return r.stars < 4;
     if(filterVal === 'lt3') return r.stars < 3;
