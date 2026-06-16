@@ -26,6 +26,7 @@ OPV_FILE_MAP = {
     "2026-03": "1jIn-HXDhce080LSNyfQmM5zYdbLF3FUgdDg11cfq9Xc",
     "2026-04": "1Gx7-FIccn0qLkH7aGKzpDSu6Ixq2xh_HTiSZR2yoiBA",
     "2026-05": "1woZ5udfV-RkEFAmBApo4h1_-fOavvJWcfCWI7jCPskk",
+    "2026-06": "1gPFiJnD7MJCya_nmVIR0ZcEtfiukBD07pEbWT_FKksA",
     # При смене месяца добавить: "ГГГГ-ММ": "FILE_ID"
 }
 GID_LENINA  = "649208657"
