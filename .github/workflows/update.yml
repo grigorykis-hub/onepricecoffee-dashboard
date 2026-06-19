@@ -2,10 +2,16 @@ name: Обновление дашборда
 
 on:
   schedule:
-    # Каждый день в 11:00 МСК = 8:00 UTC
+    # Ежедневно в 11:00 МСК = 8:00 UTC (VK, TG, выручка)
     - cron: '0 8 * * *'
+    # Еженедельно по воскресеньям в 10:00 МСК = 7:00 UTC (+ Яндекс отзывы)
+    - cron: '0 7 * * 0'
   workflow_dispatch:
-    # Кнопка "Run workflow" в интерфейсе GitHub — для ручного запуска
+    inputs:
+      update_yandex:
+        description: 'Обновить отзывы Яндекс (да/нет)'
+        required: false
+        default: 'нет'
 
 jobs:
   update:
@@ -22,10 +28,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Запустить скрипт обновления
+      - name: Запустить скрипт обновления (VK, TG, выручка, VK-отзывы)
         env:
           VK_TOKEN: ${{ secrets.VK_TOKEN }}
         run: python update_dashboard.py
+
+      - name: Установить Playwright (только воскресенье или ручной запрос)
+        if: |
+          github.event.schedule == '0 7 * * 0' ||
+          github.event.inputs.update_yandex == 'да'
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
+
+      - name: Обновить отзывы Яндекс Карт
+        if: |
+          github.event.schedule == '0 7 * * 0' ||
+          github.event.inputs.update_yandex == 'да'
+        run: python fetch_yandex_reviews.py
 
       - name: Зафиксировать и опубликовать изменения
         run: |
