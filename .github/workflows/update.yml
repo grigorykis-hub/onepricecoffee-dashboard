@@ -39,7 +39,7 @@ jobs:
           github.event.inputs.update_yandex == 'да'
         run: |
           pip install playwright
-          playwright install chromium --with-deps
+          playwright install firefox --with-deps
 
       - name: Обновить отзывы Яндекс Карт
         if: |
