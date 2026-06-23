@@ -670,10 +670,11 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 700 подп. (обновлено 22.06.2026)
+// VK: vk.ru/onepricecoffee_ivanovo — 702 подп. (обновлено 23.06.2026)
 // TG: t.me/opc_ivanovo — 80 подп.
 let posts = [
   // VK
+  {id:-78, date:"2026-06-22",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:12,  likes:7,  comments:1, reposts:0, subVk:702, subTg:80},
   {id:-75, date:"2026-06-20",platform:"vk",       postType:"photo", topic:"Полный бак? Сейчас это звучит дорого. Полный стакан айс латте — уже гораздо",   reach:162,  likes:3,  comments:0, reposts:1, subVk:697, subTg:80},
   {id:-73, date:"2026-06-18",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:0,  likes:0,  comments:0, reposts:0, subVk:697, subTg:80},
   {id:-69, date:"2026-06-17",platform:"vk",       postType:"photo", topic:"Знали ли вы, что ваш выбор напитка прописан не только в меню, но и в наталь",   reach:84,  likes:0,  comments:0, reposts:1, subVk:696, subTg:79},
@@ -774,7 +775,7 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
-const currentSubVk = 700;  // обновляется скриптом автоматически
+const currentSubVk = 702;  // обновляется скриптом автоматически
 const currentSubTg = 80;   // обновляется скриптом автоматически
 
 let events = [
@@ -983,6 +984,9 @@ let revenue = [
   {id:162,date:"2026-06-19",location:"ТЦ Серебряный Город",      revenue:41482, customers:129, avgCheck:322},
   {id:163,date:"2026-06-20",location:"ТЦ Серебряный Город",      revenue:51691, customers:145, avgCheck:356},
   {id:164,date:"2026-06-21",location:"ТЦ Серебряный Город",      revenue:46977, customers:132, avgCheck:356},
+
+  {id:165,date:"2026-06-22",location:"Проспект Ленина",      revenue:23809, customers:71, avgCheck:335},
+  {id:166,date:"2026-06-22",location:"ТЦ Серебряный Город",      revenue:32031, customers:103, avgCheck:311},
 ];
 // Контент-план ОРС на апрель 2026 (КП-30-dnei-ORS-Ivanovo-Aprel.pdf)
 let tasks = [
