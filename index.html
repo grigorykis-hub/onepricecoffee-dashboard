@@ -670,10 +670,12 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 713 подп. (обновлено 28.06.2026)
+// VK: vk.ru/onepricecoffee_ivanovo — 713 подп. (обновлено 29.06.2026)
 // TG: t.me/opc_ivanovo — 79 подп.
 let posts = [
   // VK
+  {id:-81, date:"2026-06-28",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:1,  likes:0,  comments:0, reposts:0, subVk:713, subTg:79},
+  {id:-82, date:"2026-06-28",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:7,  likes:4,  comments:0, reposts:0, subVk:713, subTg:79},
   {id:-79, date:"2026-06-25",platform:"vk",       postType:"photo", topic:"Вкусный десерт и любимый кофе — иногда для хорошего настроения больше ничег",   reach:53,  likes:1,  comments:0, reposts:0, subVk:708, subTg:79},
   {id:-78, date:"2026-06-22",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:12,  likes:7,  comments:1, reposts:0, subVk:702, subTg:80},
   {id:-75, date:"2026-06-20",platform:"vk",       postType:"photo", topic:"Полный бак? Сейчас это звучит дорого. Полный стакан айс латте — уже гораздо",   reach:162,  likes:3,  comments:0, reposts:1, subVk:697, subTg:80},
@@ -724,6 +726,7 @@ let posts = [
   {id:7,  date:"2026-04-02",platform:"vk",       postType:"photo", topic:"Обновление меню: эспрессо-тоник и матча-тоник",               reach:0,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:8,  date:"2026-03-26",platform:"vk",       postType:"photo", topic:"Опрос: хотите Мафию в ONE PRICE COFFEE?",                  reach:0,  likes:10, comments:0, reposts:1, subVk:561, subTg:68},
   // Telegram @opc_ivanovo
+  {id:-83, date:"2026-06-28",platform:"telegram",       postType:"photo", topic:"Так выглядит вкус лета🍓🌿Каждый латте начинается с идеально приготовленного ",   reach:25,  likes:0,  comments:0, reposts:0, subVk:713, subTg:79},
   {id:-80, date:"2026-06-25",platform:"telegram",       postType:"photo", topic:"Вкусный десерт и любимый кофе — иногда для хорошего настроения больше ничег",   reach:16,  likes:0,  comments:0, reposts:0, subVk:708, subTg:79},
   {id:-77, date:"2026-06-22",platform:"telegram",       postType:"photo", topic:"Когда ты бариста 😂",   reach:20,  likes:0,  comments:0, reposts:0, subVk:700, subTg:80},
   {id:-76, date:"2026-06-20",platform:"telegram",       postType:"photo", topic:"Полный бак? Сейчас это звучит дорого.Полный стакан айс латте — уже гораздо ",   reach:23,  likes:0,  comments:0, reposts:0, subVk:697, subTg:80},
@@ -998,6 +1001,13 @@ let revenue = [
 
   {id:171,date:"2026-06-25",location:"Проспект Ленина",      revenue:20399, customers:68, avgCheck:300},
   {id:172,date:"2026-06-25",location:"ТЦ Серебряный Город",      revenue:29775, customers:101, avgCheck:295},
+
+  {id:173,date:"2026-06-26",location:"Проспект Ленина",      revenue:19155, customers:54, avgCheck:355},
+  {id:174,date:"2026-06-27",location:"Проспект Ленина",      revenue:16398, customers:50, avgCheck:328},
+  {id:175,date:"2026-06-28",location:"Проспект Ленина",      revenue:13992, customers:38, avgCheck:368},
+  {id:176,date:"2026-06-26",location:"ТЦ Серебряный Город",      revenue:43569, customers:146, avgCheck:298},
+  {id:177,date:"2026-06-27",location:"ТЦ Серебряный Город",      revenue:65522, customers:186, avgCheck:352},
+  {id:178,date:"2026-06-28",location:"ТЦ Серебряный Город",      revenue:43921, customers:122, avgCheck:360},
 ];
 // Контент-план ОРС на апрель 2026 (КП-30-dnei-ORS-Ivanovo-Aprel.pdf)
 let tasks = [
