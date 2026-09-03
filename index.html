@@ -670,10 +670,11 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 744 подп. (обновлено 02.09.2026)
-// TG: t.me/opc_ivanovo — 73 подп.
+// VK: vk.ru/onepricecoffee_ivanovo — 745 подп. (обновлено 03.09.2026)
+// TG: t.me/opc_ivanovo — 72 подп.
 let posts = [
   // VK
+  {id:-136, date:"2026-09-03",platform:"vk",       postType:"photo", topic:"Баланс — это не всегда идеальный график. Иногда это несколько минут между «",   reach:4,  likes:0,  comments:0, reposts:0, subVk:745, subTg:72},
   {id:-133, date:"2026-08-27",platform:"vk",       postType:"photo", topic:"Как всё началось: «просто возьму кофе» ☕️ Как всё закончилось: пустой стака",   reach:63,  likes:2,  comments:0, reposts:0, subVk:739, subTg:74},
   {id:-131, date:"2026-08-26",platform:"vk",       postType:"photo", topic:"Когда дел на целый день, особенно нужен короткий перерыв для себя. Добавьте",   reach:25,  likes:0,  comments:0, reposts:0, subVk:739, subTg:74},
   {id:-129, date:"2026-08-23",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:2,  likes:2,  comments:0, reposts:0, subVk:735, subTg:75},
@@ -832,8 +833,8 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
-const currentSubVk = 744;  // обновляется скриптом автоматически
-const currentSubTg = 73;   // обновляется скриптом автоматически
+const currentSubVk = 745;  // обновляется скриптом автоматически
+const currentSubTg = 72;   // обновляется скриптом автоматически
 
 let events = [
   {id:1,name:"Мафия-вечер #1",date:"2026-03-15",type:"мафия",status:"проведено",responsible:"Алексей",budget:3000,attendance:18,notes:"Первая игра, отличный отклик"},
