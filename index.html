@@ -670,10 +670,11 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 748 подп. (обновлено 08.09.2026)
-// TG: t.me/opc_ivanovo — 71 подп.
+// VK: vk.ru/onepricecoffee_ivanovo — 749 подп. (обновлено 09.09.2026)
+// TG: t.me/opc_ivanovo — 68 подп.
 let posts = [
   // VK
+  {id:-144, date:"2026-09-09",platform:"vk",       postType:"photo", topic:"Осенью мы постоянно переключаемся между работой и личной жизнью. Собираемся",   reach:11,  likes:0,  comments:0, reposts:0, subVk:749, subTg:68},
   {id:-141, date:"2026-09-08",platform:"vk",       postType:"photo", topic:"Осенью в день возвращается всё сразу: работа, учёба, встречи, дорога и план",   reach:9,  likes:0,  comments:0, reposts:0, subVk:748, subTg:71},
   {id:-142, date:"2026-09-08",platform:"vk",       postType:"photo", topic:"Кажется, мы немного выросли из собственного имени. Когда появился ONE PRICE",   reach:53,  likes:1,  comments:0, reposts:0, subVk:748, subTg:71},
   {id:-139, date:"2026-09-07",platform:"vk",       postType:"photo", topic:"Небольшая задачка на сложение. Дано: знакомый One Price, любимый кофе и наш",   reach:6,  likes:0,  comments:0, reposts:0, subVk:748, subTg:72},
@@ -757,6 +758,7 @@ let posts = [
   {id:7,  date:"2026-04-02",platform:"vk",       postType:"photo", topic:"Обновление меню: эспрессо-тоник и матча-тоник",               reach:0,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:8,  date:"2026-03-26",platform:"vk",       postType:"photo", topic:"Опрос: хотите Мафию в ONE PRICE COFFEE?",                  reach:0,  likes:10, comments:0, reposts:1, subVk:561, subTg:68},
   // Telegram @opc_ivanovo
+  {id:-145, date:"2026-09-09",platform:"telegram",       postType:"photo", topic:"Проверяем, чего хочется сегодня.Если на улице серо и нужно немного солнца —",   reach:14,  likes:0,  comments:0, reposts:0, subVk:749, subTg:68},
   {id:-143, date:"2026-09-08",platform:"telegram",       postType:"photo", topic:"Кажется, мы немного выросли из собственного имени.Когда появился ONE PRICE ",   reach:22,  likes:0,  comments:0, reposts:0, subVk:748, subTg:71},
   {id:-140, date:"2026-09-07",platform:"telegram",       postType:"photo", topic:"Небольшая задачка на сложение.Дано: знакомый One Price, любимый кофе и наши",   reach:12,  likes:0,  comments:0, reposts:0, subVk:748, subTg:72},
   {id:-138, date:"2026-09-06",platform:"telegram",       postType:"photo", topic:"Баланс — это не всегда идеальный график. Иногда это несколько минут между «",   reach:11,  likes:0,  comments:0, reposts:0, subVk:747, subTg:72},
@@ -840,8 +842,8 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
-const currentSubVk = 748;  // обновляется скриптом автоматически
-const currentSubTg = 71;   // обновляется скриптом автоматически
+const currentSubVk = 749;  // обновляется скриптом автоматически
+const currentSubTg = 68;   // обновляется скриптом автоматически
 
 let events = [
   {id:1,name:"Мафия-вечер #1",date:"2026-03-15",type:"мафия",status:"проведено",responsible:"Алексей",budget:3000,attendance:18,notes:"Первая игра, отличный отклик"},
