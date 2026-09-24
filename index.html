@@ -670,10 +670,12 @@ const uid = () => ++nextId;
 const today = () => new Date().toISOString().slice(0,10);
 
 // Данные VK и Telegram получены автоматически (14.04.2026)
-// VK: vk.ru/onepricecoffee_ivanovo — 753 подп. (обновлено 23.09.2026)
+// VK: vk.ru/onepricecoffee_ivanovo — 754 подп. (обновлено 24.09.2026)
 // TG: t.me/opc_ivanovo — 68 подп.
 let posts = [
   // VK
+  {id:-158, date:"2026-09-24",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:1,  likes:0,  comments:0, reposts:0, subVk:754, subTg:68},
+  {id:-159, date:"2026-09-23",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:7,  likes:2,  comments:0, reposts:2, subVk:754, subTg:68},
   {id:-156, date:"2026-09-22",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:2,  likes:1,  comments:0, reposts:0, subVk:753, subTg:68},
   {id:-154, date:"2026-09-21",platform:"vk",       postType:"photo", topic:"Так что кофе - тот еще суперфуд💚 ONE+",   reach:91,  likes:1,  comments:0, reposts:0, subVk:753, subTg:68},
   {id:-152, date:"2026-09-18",platform:"vk",       postType:"video", topic:"Clip by @onepricecoffee_ivanovo",   reach:3,  likes:0,  comments:0, reposts:1, subVk:754, subTg:68},
@@ -764,6 +766,8 @@ let posts = [
   {id:7,  date:"2026-04-02",platform:"vk",       postType:"photo", topic:"Обновление меню: эспрессо-тоник и матча-тоник",               reach:0,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:8,  date:"2026-03-26",platform:"vk",       postType:"photo", topic:"Опрос: хотите Мафию в ONE PRICE COFFEE?",                  reach:0,  likes:10, comments:0, reposts:1, subVk:561, subTg:68},
   // Telegram @opc_ivanovo
+  {id:-160, date:"2026-09-24",platform:"telegram",       postType:"photo", topic:"Заглядывай за ароматным кофе, вкусными десертами и тем самым настроением, с",   reach:10,  likes:0,  comments:0, reposts:0, subVk:754, subTg:68},
+  {id:-161, date:"2026-09-23",platform:"telegram",       postType:"photo", topic:"А какой кофе вы выбираете сегодня?",   reach:19,  likes:0,  comments:0, reposts:0, subVk:754, subTg:68},
   {id:-157, date:"2026-09-22",platform:"telegram",       postType:"photo", topic:"Забегайте за любимым кофе и берите с собой тех, с кем хочется разделить мом",   reach:16,  likes:0,  comments:0, reposts:0, subVk:753, subTg:68},
   {id:-155, date:"2026-09-21",platform:"telegram",       postType:"photo", topic:"Так что кофе - тот еще суперфуд💚ONE+",   reach:19,  likes:0,  comments:0, reposts:0, subVk:753, subTg:68},
   {id:-153, date:"2026-09-18",platform:"telegram",       postType:"photo", topic:"Забегайте на свой маленький перерыв.Мы уже готовим ваш кофе☕️",   reach:14,  likes:0,  comments:0, reposts:0, subVk:754, subTg:68},
@@ -854,7 +858,7 @@ let posts = [
   {id:17, date:"2026-03-28",platform:"telegram",  postType:"video", topic:"Субботний вайб: зашёл за кофе, остался надольше",              reach:68,  likes:5,  comments:0, reposts:0, subVk:561, subTg:68},
   {id:18, date:"2026-03-26",platform:"telegram",  postType:"photo", topic:"Опрос: хотите Мафию? 100% проголосовали «Да»",               reach:62,  likes:4,  comments:0, reposts:0, subVk:561, subTg:68},
 ];
-const currentSubVk = 753;  // обновляется скриптом автоматически
+const currentSubVk = 754;  // обновляется скриптом автоматически
 const currentSubTg = 68;   // обновляется скриптом автоматически
 
 let events = [
